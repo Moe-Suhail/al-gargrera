@@ -24,12 +24,12 @@ export default async function SettingsPage() {
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
   return (
     <AppShell context={context}>
-      <PageHeader title="الإعدادات" subtitle="حسابك والمساحة المشتركة." />
+      <PageHeader title="الإعدادات" subtitle="إدارة الحساب، التفضيلات، والصلاحيات." />
       <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
         <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-black text-leafDark">حسابي</h2>
@@ -66,7 +66,7 @@ export default async function SettingsPage() {
           </div>
         </section>
         <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-black text-leafDark">المساحة المشتركة</h2>
+          <h2 className="text-lg font-black text-leafDark">مساحة العمل</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
             {context.accountSpace.name}
           </p>
@@ -85,7 +85,9 @@ export default async function SettingsPage() {
                   <p className="font-bold text-leafDark">
                     {member.profile.display_name}
                   </p>
-                  <p className="text-xs text-muted">{member.role}</p>
+                  <p className="text-xs text-muted">
+                    {member.role === "owner" ? "المالك" : "مستخدم"}
+                  </p>
                 </div>
               </div>
             ))}

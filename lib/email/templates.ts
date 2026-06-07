@@ -7,15 +7,15 @@ import type {
 import type { Profile } from "@/lib/types";
 
 const EVENT_LABELS: Record<EmailEventType, string> = {
-  transaction_created: "تمت إضافة عملية جديدة",
-  transaction_confirmed: "تم تأكيد العملية",
+  transaction_created: "تم تسجيل عملية جديدة",
+  transaction_confirmed: "تمت الموافقة على العملية",
   transaction_rejected: "تم رفض العملية",
   transaction_completed: "اكتملت العملية",
   repayment_created: "تمت إضافة سداد جديد",
-  repayment_confirmed: "تم تأكيد السداد",
+  repayment_confirmed: "تم قبول السداد",
   receipt_uploaded: "تم رفع إيصال",
   password_changed: "تم تغيير كلمة المرور",
-  pending_confirmation_reminder: "لديك عملية بانتظار التأكيد"
+  pending_confirmation_reminder: "لديك عملية تنتظر الموافقة"
 };
 
 function statusLabel(status?: string) {
@@ -81,7 +81,7 @@ export function buildEmailTemplate({
   ].join("\n");
 
   const html = `
-    <div dir="rtl" style="font-family:Segoe UI,Tahoma,Arial,sans-serif;background:#FBFCF5;padding:24px;color:#1F2A1F">
+    <div dir="rtl" style="font-family:Calibri,Segoe UI,Arial,sans-serif;background:#FBFCF5;padding:24px;color:#1F2A1F">
       <div style="max-width:560px;margin:auto;background:#ffffff;border:1px solid #E1E8D8;border-radius:8px;padding:24px">
         <p style="margin:0 0 12px;color:#667066">مرحبًا ${recipient.display_name}،</p>
         <h1 style="margin:0 0 16px;font-size:22px;color:#2F6B3F">${label}</h1>

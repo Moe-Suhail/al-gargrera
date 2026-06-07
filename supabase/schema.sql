@@ -418,7 +418,7 @@ with check (
 -- 1. Create the two users in Supabase Auth with email/password.
 -- 2. Let each user log in once, or insert their profiles manually using auth.users.id.
 -- 3. Create one account space:
---    insert into public.account_spaces (name, created_by) values ('تعاملات الأخوين', '<profile_id_user_1>');
+--    insert into public.account_spaces (name, created_by) values ('مساحة الجرجيرة الخاصة', '<profile_id_user_1>');
 -- 4. Add both profiles to account_members:
 --    insert into public.account_members (account_space_id, user_id, role) values
 --    ('<account_space_id>', '<profile_id_user_1>', 'owner'),

@@ -15,7 +15,7 @@ export type ExchangeRateRequest = {
 };
 
 export class ExchangeRateError extends Error {
-  constructor(message = "تعذر جلب سعر الصرف الحالي") {
+  constructor(message = "لم نتمكن من جلب سعر الصرف الآن") {
     super(message);
     this.name = "ExchangeRateError";
   }

@@ -12,12 +12,12 @@ export default async function ConverterPage() {
 
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
-  if (!context.accountSpace) return <SetupState title="لا يوجد حساب مشترك" />;
+  if (!context.accountSpace) return <SetupState title="المساحة غير جاهزة" />;
 
   return (
     <AppShell context={context}>
       <PageHeader
-        title="محول العملات"
+        title="تحويل العملات"
         subtitle="تحويل سريع بسعر اليوم مع رابط لإنشاء عملية."
       />
       <ConverterTool />

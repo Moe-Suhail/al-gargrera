@@ -95,7 +95,7 @@ export function RepaymentForm({
         if (!active) return;
         setManualRate(true);
         setRateSource("manual");
-        setRateStatus("تعذر جلب سعر الصرف الحالي");
+        setRateStatus("لم نتمكن من جلب السعر الآن");
       });
 
     return () => {
@@ -149,7 +149,7 @@ export function RepaymentForm({
           </select>
         </label>
         <label className="grid gap-2">
-          <span className={labelClass}>من دفع؟</span>
+          <span className={labelClass}>الدافع</span>
           <select
             className={inputClass}
             defaultValue={currentProfileId ?? members[0]?.user_id}
@@ -248,7 +248,7 @@ export function RepaymentForm({
 
       <div className="mt-5 flex flex-col gap-3 rounded-lg bg-mintpaper p-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-muted">
-          السداد يحتاج تأكيد الطرف الآخر قبل احتسابه في الرصيد.
+          السداد يحتاج موافقة الطرف الآخر قبل دخوله في الرصيد.
         </p>
         <SubmitButton />
       </div>

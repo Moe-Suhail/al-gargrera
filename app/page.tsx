@@ -30,8 +30,8 @@ export default async function DashboardPage() {
   if (!context.accountSpace || !context.profile) {
     return (
       <SetupState
-        title="لا توجد مساحة مشتركة"
-        description="بعد إنشاء مستخدمي Supabase، اربطهما في account_members حسب README."
+        title="المساحة غير جاهزة"
+        description="اربط المستخدمين المصرّح لهم في نفس المساحة من Supabase للبدء."
       />
     );
   }
@@ -47,14 +47,14 @@ export default async function DashboardPage() {
     <AppShell context={context}>
       <PageHeader
         title="الرئيسية"
-        subtitle="كل مبلغ في مكانه… وكل حساب واضح"
+        subtitle="نظرة سريعة على الرصيد، العمليات، وما يحتاج مراجعة."
         actions={
           <Link
             href="/transactions/new"
             className="inline-flex items-center gap-2 rounded-lg bg-leaf px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark"
           >
             <ReceiptText className="h-4 w-4" />
-            إضافة عملية جديدة
+            عملية جديدة
           </Link>
         }
       />
@@ -86,9 +86,9 @@ export default async function DashboardPage() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           icon={Clock3}
-          title="بانتظار التأكيد"
+          title="تنتظر الموافقة"
           value={`${pendingTransactions.length}`}
-          note="هذه العمليات لا تظهر في الرصيد الرسمي بعد."
+          note="لا تدخل في الرصيد حتى تتم الموافقة."
         />
         <StatCard
           icon={CheckCircle2}
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
         <section>
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-xl font-black text-leafDark">
-              عمليات بانتظار التأكيد
+              عمليات تنتظر الموافقة
             </h2>
             <Link href="/transactions" className="text-sm font-bold text-leaf">
               عرض الكل
@@ -149,14 +149,14 @@ export default async function DashboardPage() {
                 ))
             ) : (
               <p className="rounded-lg border border-line bg-white p-5 text-sm text-muted">
-                لا توجد عمليات بانتظار التأكيد
+                لا توجد عمليات تنتظر الموافقة
               </p>
             )}
           </div>
         </section>
 
         <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-black text-leafDark">ملخص العملات</h2>
+          <h2 className="text-xl font-black text-leafDark">العملات</h2>
           <div className="mt-4 grid gap-3">
             {data.currencyTotals.length ? (
               data.currencyTotals.map((item) => (
@@ -180,14 +180,14 @@ export default async function DashboardPage() {
             className="mt-4 inline-flex items-center gap-2 rounded-lg border border-leaf px-4 py-2 text-sm font-bold text-leaf transition hover:bg-limeSoft"
           >
             <ArrowRightLeft className="h-4 w-4" />
-            محول العملات
+            تحويل عملة
           </Link>
         </section>
       </div>
 
       <section className="mt-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-black text-leafDark">آخر العمليات</h2>
+          <h2 className="text-xl font-black text-leafDark">آخر حركة</h2>
           <Link href="/transactions" className="text-sm font-bold text-leaf">
             كل العمليات
           </Link>

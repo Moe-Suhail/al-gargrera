@@ -57,7 +57,7 @@ export function ConverterTool() {
       const data = (await response.json()) as ExchangeRateResult;
       setResult(data);
     } catch {
-      setError("تعذر جلب سعر الصرف الحالي");
+      setError("لم نتمكن من جلب سعر الصرف الآن");
     } finally {
       setLoading(false);
     }

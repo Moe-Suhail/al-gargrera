@@ -15,7 +15,7 @@ export function SetupState({
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
-      <section className="money-pattern w-full max-w-xl rounded-lg border border-line bg-white/86 p-6 text-center shadow-soft backdrop-blur">
+      <section className="w-full max-w-xl rounded-lg border border-line bg-white/92 p-6 text-center shadow-soft backdrop-blur">
         <Image
           src="/brand/al-gargeera-logo.png"
           alt={APP_NAME}

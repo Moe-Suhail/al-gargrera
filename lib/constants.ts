@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const APP_NAME = "الجرجيرة 🌳";
-export const APP_TAGLINE = "تعاملاتنا الشخصية بشكل واضح وآمن";
+export const APP_TAGLINE = "مساحة خاصة لترتيب المدفوعات والرصيد بوضوح";
 export const BASE_CURRENCY = "EGP";
 
 export const SUPPORTED_CURRENCIES = [
@@ -27,45 +27,45 @@ export const SUPPORTED_CURRENCIES = [
 
 export const TRANSACTION_TYPES = {
   paid_for_other: {
-    label: "دفعت عنه",
-    description: "مبلغ دفعه شخص بدل الآخر",
+    label: "دفعة بالنيابة",
+    description: "مبلغ دفعه طرف بدل الطرف الآخر",
     icon: HandCoins
   },
   saved_with_other: {
-    label: "مبلغ محفوظ عنده",
-    description: "مبلغ محفوظ مع الشخص الآخر",
+    label: "مبلغ محفوظ",
+    description: "مبلغ موجود عند الطرف الآخر",
     icon: Banknote
   },
   repayment: {
     label: "سداد",
-    description: "سداد كامل أو جزئي",
+    description: "سداد كامل أو جزئي من الرصيد",
     icon: RotateCcw
   },
   shared_expense: {
     label: "مصروف مشترك",
-    description: "مصروف يتم تقسيمه أو تحديده",
+    description: "مصروف مشترك بتوزيع واضح",
     icon: SplitSquareHorizontal
   },
   manual_adjustment: {
-    label: "تعديل بسيط",
-    description: "تصحيح يدوي مع ملاحظة",
+    label: "تصحيح سريع",
+    description: "تعديل صغير مع سبب واضح",
     icon: Activity
   },
   other: {
-    label: "أخرى",
-    description: "عملية مرنة حسب الحاجة",
+    label: "عملية أخرى",
+    description: "لأي حالة خاصة لا تناسب الخيارات",
     icon: ReceiptText
   }
 } as const;
 
 export const TRANSACTION_STATUSES = {
   pending_confirmation: {
-    label: "بانتظار التأكيد",
+    label: "بانتظار الموافقة",
     chip: "border-amber-200 bg-amber-50 text-amber-800",
     icon: Clock3
   },
   confirmed: {
-    label: "تم التأكيد",
+    label: "مؤكدة",
     chip: "border-emerald-200 bg-emerald-50 text-emerald-800",
     icon: CheckCircle2
   },
@@ -87,26 +87,26 @@ export const TRANSACTION_STATUSES = {
 } as const;
 
 export const QUICK_ACTIONS = [
-  { href: "/transactions/new", label: "إضافة عملية", icon: ReceiptText },
-  { href: "/repayments", label: "إضافة سداد", icon: RotateCcw },
-  { href: "/converter", label: "محول العملات", icon: Coins },
-  { href: "/reports", label: "كشف بسيط", icon: Activity }
+  { href: "/transactions/new", label: "عملية جديدة", icon: ReceiptText },
+  { href: "/repayments", label: "تسجيل سداد", icon: RotateCcw },
+  { href: "/converter", label: "تحويل عملة", icon: Coins },
+  { href: "/reports", label: "التقارير", icon: Activity }
 ];
 
 export const EMPTY_STATES = {
   loading: "جاري تحميل البيانات...",
-  noTransactions: "لا توجد عمليات بعد",
-  noPending: "لا توجد عمليات بانتظار التأكيد",
-  exchangeRateError: "تعذر جلب سعر الصرف الحالي",
-  attachmentUploadError: "تعذر رفع الإيصال، حاول مرة أخرى",
+  noTransactions: "لا توجد عمليات حتى الآن",
+  noPending: "لا توجد عمليات تنتظر الموافقة",
+  exchangeRateError: "لم نتمكن من جلب سعر الصرف الآن",
+  attachmentUploadError: "لم يتم رفع الإيصال، جرّب مرة أخرى",
   unauthorized: "لا يمكنك الوصول إلى هذه الصفحة",
   genericError: "حدث خطأ غير متوقع"
 };
 
 export const SUCCESS_MESSAGES = {
-  transactionCreated: "تمت إضافة العملية بنجاح",
-  transactionConfirmed: "تم تأكيد العملية",
+  transactionCreated: "تم تسجيل العملية",
+  transactionConfirmed: "تمت الموافقة على العملية",
   transactionRejected: "تم رفض العملية",
-  editSaved: "تم حفظ التعديل",
+  editSaved: "تم حفظ التحديث",
   attachmentUploaded: "تم رفع الإيصال"
 };

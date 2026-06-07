@@ -18,17 +18,18 @@ export const dynamic = "force-dynamic";
 export default async function TransactionsPage({
   searchParams
 }: {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const context = await getCurrentContext();
 
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
-  const transactions = await getTransactions(context, searchParams);
+  const transactions = await getTransactions(context, resolvedSearchParams);
 
   return (
     <AppShell context={context}>
@@ -41,13 +42,13 @@ export default async function TransactionsPage({
             className="inline-flex items-center gap-2 rounded-lg bg-leaf px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark"
           >
             <Plus className="h-4 w-4" />
-            إضافة عملية
+            عملية جديدة
           </Link>
         }
       />
 
       <form className="mb-5 grid gap-3 rounded-lg border border-line bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-6">
-        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="status" defaultValue={searchParams.status ?? ""}>
+        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="status" defaultValue={resolvedSearchParams.status ?? ""}>
           <option value="">الحالة</option>
           {Object.entries(TRANSACTION_STATUSES).map(([value, item]) => (
             <option key={value} value={value}>
@@ -55,7 +56,7 @@ export default async function TransactionsPage({
             </option>
           ))}
         </select>
-        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="type" defaultValue={searchParams.type ?? ""}>
+        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="type" defaultValue={resolvedSearchParams.type ?? ""}>
           <option value="">نوع العملية</option>
           {Object.entries(TRANSACTION_TYPES).map(([value, item]) => (
             <option key={value} value={value}>
@@ -63,7 +64,7 @@ export default async function TransactionsPage({
             </option>
           ))}
         </select>
-        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="currency" defaultValue={searchParams.currency ?? ""}>
+        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="currency" defaultValue={resolvedSearchParams.currency ?? ""}>
           <option value="">العملة</option>
           {SUPPORTED_CURRENCIES.map((currency) => (
             <option key={currency.code} value={currency.code}>
@@ -71,7 +72,7 @@ export default async function TransactionsPage({
             </option>
           ))}
         </select>
-        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="person" defaultValue={searchParams.person ?? ""}>
+        <select className="min-h-11 rounded-lg border border-line px-3 text-sm" name="person" defaultValue={resolvedSearchParams.person ?? ""}>
           <option value="">الشخص</option>
           {context.members.map((member) => (
             <option key={member.user_id} value={member.user_id}>
@@ -81,7 +82,7 @@ export default async function TransactionsPage({
         </select>
         <input
           className="min-h-11 rounded-lg border border-line px-3 text-sm"
-          defaultValue={searchParams.query ?? ""}
+          defaultValue={resolvedSearchParams.query ?? ""}
           name="query"
           placeholder="بحث في الوصف"
         />

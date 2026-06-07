@@ -37,17 +37,18 @@ const inputClass =
 export default async function TransactionDetailsPage({
   params
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const resolvedParams = await params;
   const context = await getCurrentContext();
 
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
-  const transaction = await getTransactionById(context, params.id);
+  const transaction = await getTransactionById(context, resolvedParams.id);
   if (!transaction) notFound();
 
   const activities = (await getActivities(context, 100)).filter(
@@ -97,21 +98,21 @@ export default async function TransactionDetailsPage({
 
           <div className="mt-5 rounded-lg bg-mintpaper p-4 text-sm leading-7 text-muted">
             {transaction.status === "pending_confirmation"
-              ? "هذه العملية بانتظار التأكيد ولن تظهر في الرصيد الرسمي بعد."
+              ? "هذه العملية تنتظر الموافقة، ولن تدخل في الرصيد الآن."
               : transaction.status === "confirmed" ||
                   transaction.status === "completed"
-                ? "تم احتساب هذه العملية في الرصيد."
+                ? "هذه العملية داخلة في الرصيد."
                 : "هذه العملية لا تؤثر على الرصيد."}
           </div>
 
           <dl className="mt-5 grid gap-3 sm:grid-cols-2">
             <Detail label="التاريخ" value={formatDate(transaction.transaction_date)} />
             <Detail
-              label="من دفع؟"
+              label="الدافع"
               value={transaction.paid_by?.display_name ?? "مستخدم"}
             />
             <Detail
-              label="العملية تخص من؟"
+              label="الطرف المرتبط"
               value={transaction.related_user?.display_name ?? "مستخدم"}
             />
             <Detail
@@ -152,7 +153,7 @@ export default async function TransactionDetailsPage({
                     type="submit"
                   >
                     <CheckCircle2 className="h-4 w-4" />
-                    تأكيد
+                    موافقة
                   </button>
                 </form>
                 <form action={rejectTransactionAction} className="flex gap-2">

@@ -7,14 +7,15 @@ import { SetupState } from "@/components/setup-state";
 
 const ERROR_COPY: Record<string, string> = {
   env: "بيانات Supabase غير مكتملة.",
-  login: "تعذر تسجيل الدخول، تأكد من البريد وكلمة المرور."
+  login: "لم نتمكن من تسجيل الدخول. راجع البريد وكلمة المرور."
 };
 
 export default async function LoginPage({
   searchParams
 }: {
-  searchParams: { error?: string; next?: string };
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const context = await getCurrentContext();
 
   if (!context.isConfigured) {
@@ -30,11 +31,13 @@ export default async function LoginPage({
     redirect("/");
   }
 
-  const error = searchParams.error ? ERROR_COPY[searchParams.error] : null;
+  const error = resolvedSearchParams.error
+    ? ERROR_COPY[resolvedSearchParams.error]
+    : null;
 
   return (
     <main className="grid min-h-screen place-items-center px-4 py-8">
-      <section className="money-pattern w-full max-w-md rounded-lg border border-line bg-white/90 p-6 shadow-soft backdrop-blur">
+      <section className="w-full max-w-md rounded-lg border border-line bg-white/94 p-6 shadow-soft backdrop-blur">
         <Image
           src="/brand/al-gargeera-logo.png"
           alt={APP_NAME}
@@ -48,7 +51,7 @@ export default async function LoginPage({
             مرحبًا بك في الجرجيرة 🌳
           </h1>
           <p className="mt-2 text-sm leading-7 text-muted">
-            سجّل دخولك لمتابعة العمليات والرصيد بينك وبين أخيك.
+            سجّل دخولك لإدارة العمليات والرصيد في مساحة خاصة وواضحة.
           </p>
         </div>
         {error ? (
@@ -57,7 +60,11 @@ export default async function LoginPage({
           </p>
         ) : null}
         <form action={signInAction} className="mt-5 grid gap-4">
-          <input type="hidden" name="next" value={searchParams.next ?? "/"} />
+          <input
+            type="hidden"
+            name="next"
+            value={resolvedSearchParams.next ?? "/"}
+          />
           <label className="grid gap-2">
             <span className="text-sm font-bold text-leafDark">البريد</span>
             <input

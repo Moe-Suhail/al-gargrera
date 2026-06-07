@@ -46,7 +46,7 @@ export function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function profileName(name?: string | null, fallback = "أخيك") {
+export function profileName(name?: string | null, fallback = "الطرف الآخر") {
   return name?.trim() || fallback;
 }
 
@@ -54,14 +54,14 @@ export function balanceText(balance: number, otherName?: string | null) {
   const name = profileName(otherName);
 
   if (Math.abs(balance) < 0.01) {
-    return "الحساب متوازن";
+    return "الرصيد متوازن";
   }
 
   if (balance > 0) {
-    return `لك عند ${name}: ${formatMoney(balance, BASE_CURRENCY)}`;
+    return `مستحق لك من ${name}: ${formatMoney(balance, BASE_CURRENCY)}`;
   }
 
-  return `عليك لـ${name}: ${formatMoney(Math.abs(balance), BASE_CURRENCY)}`;
+  return `مستحق عليك لـ${name}: ${formatMoney(Math.abs(balance), BASE_CURRENCY)}`;
 }
 
 export function rateLine(

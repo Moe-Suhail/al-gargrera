@@ -16,10 +16,10 @@ const inputClass =
 
 const ERROR_COPY: Record<string, string> = {
   required: "اكتب الاسم المعروض.",
-  save: "تعذر حفظ الملف الشخصي.",
+  save: "لم يتم حفظ الملف الشخصي.",
   "password-match": "تأكيد كلمة المرور غير مطابق.",
   "password-weak": "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف ورقم.",
-  password: "تعذر تحديث كلمة المرور، حاول مرة أخرى"
+  password: "لم يتم تحديث كلمة المرور، حاول مرة أخرى"
 };
 
 export const dynamic = "force-dynamic";
@@ -27,8 +27,9 @@ export const dynamic = "force-dynamic";
 export default async function ProfilePage({
   searchParams
 }: {
-  searchParams: { success?: string; error?: string };
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const context = await getCurrentContext();
 
   if (!context.isConfigured) return <SetupState />;
@@ -36,18 +37,20 @@ export default async function ProfilePage({
   if (!context.accountSpace || !context.profile) {
     return (
       <SetupState
-        title="لا يوجد حساب مشترك"
-        description="أضف المستخدمين إلى account_members بعد تشغيل schema.sql."
+        title="المساحة غير جاهزة"
+        description="أضف المستخدمين المصرّح لهم إلى نفس المساحة بعد تشغيل schema.sql."
       />
     );
   }
 
   const profile = context.profile;
-  const error = searchParams.error ? ERROR_COPY[searchParams.error] : null;
+  const error = resolvedSearchParams.error
+    ? ERROR_COPY[resolvedSearchParams.error]
+    : null;
   const success =
-    searchParams.success === "password"
+    resolvedSearchParams.success === "password"
       ? "تم تحديث كلمة المرور بنجاح"
-      : searchParams.success === "profile"
+      : resolvedSearchParams.success === "profile"
         ? "تم حفظ الملف الشخصي"
         : null;
 

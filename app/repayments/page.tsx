@@ -15,7 +15,7 @@ export default async function RepaymentsPage() {
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
   const [repayments, transactions] = await Promise.all([

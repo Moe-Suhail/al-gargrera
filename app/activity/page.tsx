@@ -13,7 +13,7 @@ export default async function ActivityPage() {
 
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
-  if (!context.accountSpace) return <SetupState title="لا يوجد حساب مشترك" />;
+  if (!context.accountSpace) return <SetupState title="المساحة غير جاهزة" />;
 
   const activities = await getActivities(context, 100);
 

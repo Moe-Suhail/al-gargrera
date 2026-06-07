@@ -20,7 +20,7 @@ export default async function ReportsPage() {
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
   const data = await getDashboardData(context);
@@ -47,8 +47,8 @@ export default async function ReportsPage() {
   return (
     <AppShell context={context}>
       <PageHeader
-        title="كشف بسيط"
-        subtitle="ملخص واضح للرصيد والعملات والحالات."
+        title="التقارير"
+        subtitle="أرقام مختصرة تساعدك تفهم الوضع بسرعة."
         actions={
           <Link
             className="inline-flex items-center gap-2 rounded-lg border border-leaf bg-white px-4 py-3 text-sm font-bold text-leaf transition hover:bg-limeSoft"
@@ -62,7 +62,7 @@ export default async function ReportsPage() {
 
       <div className="grid gap-5 lg:grid-cols-3">
         <section className="rounded-lg border border-line bg-white p-5 shadow-sm lg:col-span-2">
-          <h2 className="text-xl font-black text-leafDark">الرصيد الحالي</h2>
+          <h2 className="text-xl font-black text-leafDark">ملخص الرصيد</h2>
           <p className="mt-3 text-3xl font-black text-leaf">
             {balanceText(
               calculateOfficialBalance(

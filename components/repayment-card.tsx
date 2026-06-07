@@ -56,7 +56,7 @@ export function RepaymentCard({
             className="rounded-lg bg-leaf px-4 py-2 text-sm font-bold text-white transition hover:bg-leafDark"
             type="submit"
           >
-            تأكيد السداد
+            قبول السداد
           </button>
         </form>
       ) : null}

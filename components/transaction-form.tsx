@@ -137,7 +137,7 @@ export function TransactionForm({
         if (!active) return;
         setManualRate(true);
         setRateSource("manual");
-        setRateStatus("تعذر جلب سعر الصرف الحالي");
+        setRateStatus("لم نتمكن من جلب السعر الآن");
       })
       .finally(() => {
         if (active) {
@@ -226,7 +226,7 @@ export function TransactionForm({
         </label>
 
         <label className="grid gap-2">
-          <span className={labelClass}>من دفع؟</span>
+          <span className={labelClass}>الدافع</span>
           <select
             className={inputClass}
             defaultValue={
@@ -243,7 +243,7 @@ export function TransactionForm({
         </label>
 
         <label className="grid gap-2">
-          <span className={labelClass}>العملية تخص من؟</span>
+          <span className={labelClass}>الطرف المرتبط</span>
           <select
             className={inputClass}
             defaultValue={
@@ -338,10 +338,10 @@ export function TransactionForm({
 
       <div className="mt-5 flex flex-col gap-3 rounded-lg bg-mintpaper p-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-muted">
-          هذه العملية لن تُحتسب في الرصيد حتى يتم تأكيدها.
+          لن تدخل هذه العملية في الرصيد حتى تتم الموافقة عليها.
         </p>
         <SubmitButton
-          label={mode === "edit" ? "حفظ التعديل" : "إضافة العملية"}
+          label={mode === "edit" ? "حفظ التحديث" : "تسجيل العملية"}
         />
       </div>
     </form>

@@ -82,7 +82,7 @@ export function TransactionCard({
               className="w-full rounded-lg bg-leaf px-4 py-2 text-sm font-bold text-white transition hover:bg-leafDark sm:w-auto"
               type="submit"
             >
-              تأكيد
+              موافقة
             </button>
           </form>
           <form action={rejectTransactionAction} className="contents">

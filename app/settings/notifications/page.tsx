@@ -12,11 +12,11 @@ const fields = [
   },
   {
     name: "notify_on_transaction_created",
-    label: "عند إضافة عملية جديدة"
+    label: "عند تسجيل عملية جديدة"
   },
   {
     name: "notify_on_transaction_confirmed",
-    label: "عند تأكيد أو رفض العملية"
+    label: "عند الموافقة أو الرفض"
   },
   {
     name: "notify_on_transaction_completed",
@@ -24,11 +24,11 @@ const fields = [
   },
   {
     name: "notify_on_repayment",
-    label: "عند إضافة أو تأكيد سداد"
+    label: "عند تسجيل أو قبول سداد"
   },
   {
     name: "notify_on_pending_reminder",
-    label: "تذكير العمليات بانتظار التأكيد"
+    label: "تذكير العمليات التي تنتظر الموافقة"
   }
 ] as const;
 
@@ -37,14 +37,15 @@ export const dynamic = "force-dynamic";
 export default async function NotificationSettingsPage({
   searchParams
 }: {
-  searchParams: { success?: string; error?: string };
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const context = await getCurrentContext();
 
   if (!context.isConfigured) return <SetupState />;
   if (!context.user) redirect("/login");
   if (!context.accountSpace || !context.profile) {
-    return <SetupState title="لا يوجد حساب مشترك" />;
+    return <SetupState title="المساحة غير جاهزة" />;
   }
 
   return (
@@ -53,14 +54,14 @@ export default async function NotificationSettingsPage({
         title="إعدادات التنبيهات"
         subtitle="اختر رسائل البريد التي تريد استقبالها من الجرجيرة."
       />
-      {searchParams.success ? (
+      {resolvedSearchParams.success ? (
         <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
           تم حفظ إعدادات التنبيهات
         </p>
       ) : null}
-      {searchParams.error ? (
+      {resolvedSearchParams.error ? (
         <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
-          تعذر حفظ إعدادات التنبيهات
+          لم يتم حفظ إعدادات التنبيهات
         </p>
       ) : null}
       <form
