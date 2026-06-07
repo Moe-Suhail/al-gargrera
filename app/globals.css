@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: #fbfcf5;
+  --foreground: #1f2a1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  color: var(--foreground);
+  background:
+    linear-gradient(135deg, rgba(201, 242, 77, 0.14), transparent 34%),
+    linear-gradient(180deg, #fbfcf5 0%, #f8faf3 55%, #fbfcf5 100%);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(201, 242, 77, 0.55);
+  color: #1f2a1f;
+}
+
+.money-pattern {
+  background-image:
+    linear-gradient(90deg, rgba(47, 107, 63, 0.055) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(217, 164, 65, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.coin-chip {
+  position: relative;
+  display: inline-flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 164, 65, 0.55);
+  background: linear-gradient(135deg, #f6e3a1, #d9a441);
+  color: #6a4a0c;
+  box-shadow: 0 10px 24px rgba(217, 164, 65, 0.2);
+}
+
+.coin-chip::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(106, 74, 12, 0.24);
+}
