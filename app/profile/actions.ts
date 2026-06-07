@@ -6,6 +6,8 @@ import { z } from "zod";
 import { logActivity } from "@/lib/activity";
 import { requireActionContext } from "@/lib/action-context";
 import { sendEmailNotification } from "@/lib/email/send-notification";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { uploadProfileImage } from "@/lib/storage";
 
 const currencySchema = z.enum(["EGP", "USD", "SAR", "AED", "EUR", "GBP"]);
 
@@ -30,10 +32,25 @@ export async function updateProfileAction(formData: FormData) {
     .catch("EGP")
     .parse(cleanText(formData.get("default_currency")) || "EGP");
   const timezone = cleanText(formData.get("timezone")) || null;
-  const profileImageUrl = cleanText(formData.get("profile_image_url")) || null;
+  let profileImageUrl = cleanText(formData.get("profile_image_url")) || null;
+  const profileImage = formData.get("profile_image");
 
   if (!displayName) {
     redirect("/profile?error=required");
+  }
+
+  if (profileImage instanceof File && profileImage.size > 0) {
+    try {
+      const adminSupabase = createSupabaseAdminClient() ?? supabase;
+      profileImageUrl = await uploadProfileImage({
+        supabase: adminSupabase,
+        file: profileImage,
+        profileId: context.profile.id
+      });
+    } catch (error) {
+      console.error("Profile image upload failed", error);
+      redirect("/profile?error=image");
+    }
   }
 
   const { error } = await supabase

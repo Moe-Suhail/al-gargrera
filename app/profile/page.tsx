@@ -17,6 +17,7 @@ const inputClass =
 const ERROR_COPY: Record<string, string> = {
   required: "اكتب الاسم المعروض.",
   save: "لم يتم حفظ الملف الشخصي.",
+  image: "لم يتم رفع الصورة. استخدم JPG أو PNG أو WebP بحجم مناسب.",
   "password-match": "تأكيد كلمة المرور غير مطابق.",
   "password-weak": "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف ورقم.",
   password: "لم يتم تحديث كلمة المرور، حاول مرة أخرى"
@@ -76,6 +77,11 @@ export default async function ProfilePage({
           action={updateProfileAction}
           className="rounded-lg border border-line bg-white p-5 shadow-sm"
         >
+          <input
+            type="hidden"
+            name="profile_image_url"
+            value={profile.profile_image_url ?? ""}
+          />
           <div className="mb-5 flex items-center gap-4">
             <ProfileAvatar
               imageUrl={profile.profile_image_url}
@@ -89,6 +95,19 @@ export default async function ProfilePage({
               <p className="mt-1 text-sm text-muted">{profile.email}</p>
             </div>
           </div>
+
+          <label className="mb-4 grid gap-2 rounded-lg border border-line bg-mintpaper p-4">
+            <span className="text-sm font-black text-leafDark">الصورة الشخصية</span>
+            <span className="text-xs leading-5 text-muted">
+              ارفع صورة واضحة وسنستخدمها في الهيدر والإعدادات.
+            </span>
+            <input
+              accept="image/jpeg,image/png,image/webp"
+              className="min-h-11 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-leafDark outline-none transition file:ml-3 file:rounded-md file:border-0 file:bg-leaf file:px-3 file:py-2 file:text-sm file:font-bold file:text-white focus:border-leaf focus:ring-2 focus:ring-limeSoft"
+              name="profile_image"
+              type="file"
+            />
+          </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
@@ -167,16 +186,6 @@ export default async function ProfilePage({
                 defaultValue={profile.timezone ?? ""}
                 name="timezone"
                 placeholder="Africa/Cairo"
-              />
-            </label>
-            <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">رابط الصورة</span>
-              <input
-                className={inputClass}
-                defaultValue={profile.profile_image_url ?? ""}
-                dir="ltr"
-                name="profile_image_url"
-                type="url"
               />
             </label>
           </div>

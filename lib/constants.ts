@@ -12,7 +12,7 @@ import {
   XCircle
 } from "lucide-react";
 
-export const APP_NAME = "الجرجيرة 🌳";
+export const APP_NAME = "الجرجيرة 💰";
 export const APP_TAGLINE = "مساحة خاصة لترتيب المدفوعات والرصيد بوضوح";
 export const BASE_CURRENCY = "EGP";
 

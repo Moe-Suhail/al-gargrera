@@ -394,6 +394,16 @@ insert into storage.buckets (id, name, public)
 values ('transaction-attachments', 'transaction-attachments', false)
 on conflict (id) do nothing;
 
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'profile-images',
+  'profile-images',
+  true,
+  3145728,
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do nothing;
+
 drop policy if exists "attachment objects read members" on storage.objects;
 create policy "attachment objects read members"
 on storage.objects for select

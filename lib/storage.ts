@@ -2,15 +2,76 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Attachment } from "@/lib/types";
 
 const BUCKET = "transaction-attachments";
+const PROFILE_IMAGES_BUCKET = "profile-images";
 type AnySupabase = SupabaseClient<any, "public", any>;
 
-function safeFileName(fileName: string) {
+export function safeFileName(fileName: string) {
   return fileName
     .normalize("NFKD")
     .replace(/[^\w.\-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
+}
+
+export async function ensureProfileImagesBucket(supabase: AnySupabase) {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const exists = buckets?.some((bucket) => bucket.name === PROFILE_IMAGES_BUCKET);
+
+  if (exists) {
+    return;
+  }
+
+  const { error } = await supabase.storage.createBucket(PROFILE_IMAGES_BUCKET, {
+    public: true,
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
+    fileSizeLimit: 1024 * 1024 * 3
+  });
+
+  if (error && !error.message.toLowerCase().includes("already exists")) {
+    throw error;
+  }
+}
+
+export async function uploadProfileImage({
+  supabase,
+  file,
+  profileId
+}: {
+  supabase: AnySupabase;
+  file: File;
+  profileId: string;
+}) {
+  if (!file.size) {
+    return null;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Profile image must be an image.");
+  }
+
+  await ensureProfileImagesBucket(supabase);
+
+  const cleanName = safeFileName(file.name) || "profile-image";
+  const extension = cleanName.includes(".") ? cleanName.split(".").pop() : "jpg";
+  const path = `${profileId}/${Date.now()}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from(PROFILE_IMAGES_BUCKET)
+    .upload(path, file, {
+      cacheControl: "31536000",
+      upsert: true
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage
+    .from(PROFILE_IMAGES_BUCKET)
+    .getPublicUrl(path);
+
+  return data.publicUrl;
 }
 
 export async function uploadTransactionAttachment({

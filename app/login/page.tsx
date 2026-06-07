@@ -48,7 +48,7 @@ export default async function LoginPage({
         />
         <div className="mt-4 text-center">
           <h1 className="text-2xl font-black text-leafDark">
-            مرحبًا بك في الجرجيرة 🌳
+            مرحبًا بك في الجرجيرة 💰
           </h1>
           <p className="mt-2 text-sm leading-7 text-muted">
             سجّل دخولك لإدارة العمليات والرصيد في مساحة خاصة وواضحة.

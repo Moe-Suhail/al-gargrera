@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "الجرجيرة 🌳",
-  description: "تعاملات شخصية واضحة وآمنة بين أخوين"
+  title: "الجرجيرة 💰",
+  description: "مساحة خاصة لترتيب المدفوعات والرصيد بوضوح"
 };
 
 export default function RootLayout({

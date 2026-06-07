@@ -1,4 +1,4 @@
-# الجرجيرة 🌳
+# الجرجيرة 💰
 
 تطبيق ويب خاص لترتيب التعاملات الشخصية بين طرفين موثوقين. التطبيق لا يحوّل أموالًا ولا يعمل كبنك أو نظام محاسبة؛ هو فقط يسجل العمليات، السداد، الموافقات، الرصيد، العملات، الإيصالات، والنشاط.
 
@@ -33,7 +33,7 @@ EXCHANGE_RATE_API_KEY=
 EXCHANGE_RATE_PROVIDER=frankfurter
 EMAIL_PROVIDER=resend
 RESEND_API_KEY=
-EMAIL_FROM="الجرجيرة 🌳 <no-reply@your-domain.com>"
+EMAIL_FROM="الجرجيرة 💰 <no-reply@your-domain.com>"
 CRON_SECRET=
 ```
 
