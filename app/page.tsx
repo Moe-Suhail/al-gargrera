@@ -31,7 +31,7 @@ export default async function DashboardPage() {
     return (
       <SetupState
         title="المساحة غير جاهزة"
-        description="اربط المستخدمين المصرّح لهم في نفس المساحة من Supabase للبدء."
+        description="اربط المستخدمين المصرح لهم في نفس المساحة من Supabase للبدء."
       />
     );
   }
@@ -46,8 +46,8 @@ export default async function DashboardPage() {
   return (
     <AppShell context={context}>
       <PageHeader
-        title="الرئيسية"
-        subtitle="نظرة سريعة على الرصيد، العمليات، وما يحتاج مراجعة."
+        title={`أهلًا، ${context.profile.display_name}`}
+        subtitle="لوحة مالية مختصرة: الرصيد، المراجعات، وآخر حركة في مكان واحد."
         actions={
           <Link
             href="/transactions/new"
@@ -65,39 +65,41 @@ export default async function DashboardPage() {
         pendingImpact={data.pendingImpact}
       />
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {QUICK_ACTIONS.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-lg border border-line bg-white p-4 font-bold text-leafDark shadow-sm transition hover:border-leaf hover:bg-limeSoft"
+              className="group rounded-lg border border-white/80 bg-white/90 p-4 shadow-card ring-1 ring-line/60 transition hover:-translate-y-0.5 hover:bg-limeSoft"
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-limeSoft text-leaf">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-lime/60 bg-limeSoft text-leaf shadow-sm transition group-hover:bg-white">
                 <Icon className="h-5 w-5" />
               </span>
-              {item.label}
+              <span className="mt-3 block text-sm font-black text-ink">
+                {item.label}
+              </span>
             </Link>
           );
         })}
       </div>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard
           icon={Clock3}
-          title="تنتظر الموافقة"
+          title="تنتظر الاعتماد"
           value={`${pendingTransactions.length}`}
-          note="لا تدخل في الرصيد حتى تتم الموافقة."
+          note="لا تدخل في الرصيد قبل المراجعة."
         />
         <StatCard
           icon={CheckCircle2}
-          title="عمليات مكتملة"
+          title="مكتملة"
           value={`${data.transactions.filter((item) => item.status === "completed").length}`}
         />
         <StatCard
           icon={TrendingUp}
-          title="إجمالي هذا الشهر"
+          title="إجمالي الشهر"
           value={formatMoney(data.monthlyTotal)}
         />
         <StatCard
@@ -126,12 +128,10 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
         <section>
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-black text-leafDark">
-              عمليات تنتظر الموافقة
-            </h2>
+            <h2 className="text-xl font-black text-ink">بانتظار الاعتماد</h2>
             <Link href="/transactions" className="text-sm font-bold text-leaf">
               عرض الكل
             </Link>
@@ -148,15 +148,15 @@ export default async function DashboardPage() {
                   />
                 ))
             ) : (
-              <p className="rounded-lg border border-line bg-white p-5 text-sm text-muted">
-                لا توجد عمليات تنتظر الموافقة
+              <p className="rounded-lg border border-white/80 bg-white/90 p-5 text-sm text-sage shadow-card ring-1 ring-line/60">
+                لا توجد عمليات تنتظر الاعتماد الآن.
               </p>
             )}
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-black text-leafDark">العملات</h2>
+        <section className="rounded-lg border border-white/80 bg-white/90 p-5 shadow-card ring-1 ring-line/60">
+          <h2 className="text-xl font-black text-ink">العملات</h2>
           <div className="mt-4 grid gap-3">
             {data.currencyTotals.length ? (
               data.currencyTotals.map((item) => (
@@ -164,15 +164,15 @@ export default async function DashboardPage() {
                   key={item.currency}
                   className="flex items-center justify-between gap-3 rounded-lg bg-mintpaper px-3 py-2"
                 >
-                  <span className="font-bold text-leafDark">{item.currency}</span>
-                  <span className="text-sm text-muted">
+                  <span className="font-black text-ink">{item.currency}</span>
+                  <span className="text-sm text-sage">
                     {formatMoney(item.originalTotal, item.currency)} ·{" "}
                     {formatMoney(item.convertedTotal)}
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted">لا توجد عمليات مؤكدة بعد</p>
+              <p className="text-sm text-sage">لا توجد عمليات معتمدة بعد.</p>
             )}
           </div>
           <Link
@@ -185,9 +185,9 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <section className="mt-5">
+      <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-black text-leafDark">آخر حركة</h2>
+          <h2 className="text-xl font-black text-ink">آخر حركة</h2>
           <Link href="/transactions" className="text-sm font-bold text-leaf">
             كل العمليات
           </Link>
@@ -203,8 +203,8 @@ export default async function DashboardPage() {
               />
             ))
           ) : (
-            <p className="rounded-lg border border-line bg-white p-5 text-sm text-muted">
-              لا توجد عمليات بعد
+            <p className="rounded-lg border border-white/80 bg-white/90 p-5 text-sm text-sage shadow-card ring-1 ring-line/60">
+              لا توجد عمليات بعد.
             </p>
           )}
         </div>

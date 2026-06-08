@@ -11,7 +11,8 @@ const BOOLEAN_FIELDS = [
   "notify_on_transaction_confirmed",
   "notify_on_transaction_completed",
   "notify_on_repayment",
-  "notify_on_pending_reminder"
+  "notify_on_pending_reminder",
+  "notify_on_monthly_expense_reminder"
 ] as const;
 
 export async function updateNotificationSettingsAction(formData: FormData) {

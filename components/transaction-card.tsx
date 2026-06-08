@@ -25,16 +25,16 @@ export function TransactionCard({
     transaction.created_by !== currentProfileId;
 
   return (
-    <article className="rounded-lg border border-line bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <article className="rounded-lg border border-white/80 bg-white/92 p-4 shadow-card ring-1 ring-line/60 transition hover:-translate-y-0.5 hover:shadow-soft">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-limeSoft text-leaf">
-              <Icon className="h-4 w-4" />
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-coin/30 bg-coinSoft/70 text-leaf shadow-sm">
+              <Icon className="h-5 w-5" />
             </span>
             <Link
               href={`/transactions/${transaction.id}`}
-              className="font-bold text-leafDark hover:text-leaf"
+              className="min-w-0 max-w-full truncate text-base font-black text-ink hover:text-leaf"
             >
               {transaction.description}
             </Link>
@@ -43,7 +43,7 @@ export function TransactionCard({
               <Paperclip className="h-4 w-4 text-coin" />
             ) : null}
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-sage">
             <span>{type.label}</span>
             <span>{formatDate(transaction.transaction_date)}</span>
             <span className="inline-flex items-center gap-1">
@@ -52,15 +52,15 @@ export function TransactionCard({
             </span>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xl font-black text-leafDark">
+        <div className="rounded-lg bg-mintpaper px-3 py-2 text-right sm:min-w-36">
+          <p className="text-xl font-black text-ink">
             {formatMoney(
               transaction.original_amount,
               transaction.original_currency
             )}
           </p>
           {transaction.original_currency !== transaction.base_currency ? (
-            <p className="mt-1 text-sm font-semibold text-muted">
+            <p className="mt-1 text-sm font-semibold text-sage">
               {formatMoney(
                 transaction.converted_amount_base,
                 transaction.base_currency
@@ -70,7 +70,7 @@ export function TransactionCard({
         </div>
       </div>
       {!compact && transaction.notes ? (
-        <p className="mt-3 rounded-lg bg-mintpaper px-3 py-2 text-sm leading-6 text-muted">
+        <p className="mt-3 rounded-lg bg-mintpaper px-3 py-2 text-sm leading-6 text-sage">
           {transaction.notes}
         </p>
       ) : null}
@@ -79,16 +79,16 @@ export function TransactionCard({
           <form action={confirmTransactionAction}>
             <input type="hidden" name="id" value={transaction.id} />
             <button
-              className="w-full rounded-lg bg-leaf px-4 py-2 text-sm font-bold text-white transition hover:bg-leafDark sm:w-auto"
+              className="w-full rounded-lg bg-leaf px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark sm:w-auto"
               type="submit"
             >
-              موافقة
+              اعتماد
             </button>
           </form>
           <form action={rejectTransactionAction} className="contents">
             <input type="hidden" name="id" value={transaction.id} />
             <input
-              className="min-h-10 rounded-lg border border-line bg-white px-3 text-sm outline-none focus:border-leaf"
+              className="min-h-10 rounded-lg border border-line bg-white px-3 text-sm outline-none transition focus:border-leaf focus:ring-2 focus:ring-limeSoft"
               name="rejection_reason"
               placeholder="سبب الرفض"
             />

@@ -17,12 +17,32 @@ html {
   background: var(--background);
 }
 
+html[dir="rtl"] {
+  text-align: right;
+}
+
 body {
   min-height: 100%;
   margin: 0;
   color: var(--foreground);
-  background: linear-gradient(180deg, #fbfcf5 0%, #f5f8ec 100%);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 244, 0.98) 0%, rgba(246, 248, 236, 0.98) 46%, rgba(238, 244, 227, 0.98) 100%),
+    #fbfcf5;
   font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(217, 164, 65, 0.14), transparent 24%),
+    radial-gradient(circle at 90% 6%, rgba(201, 242, 77, 0.18), transparent 20%),
+    radial-gradient(circle at 72% 82%, rgba(47, 107, 63, 0.10), transparent 26%);
 }
 
 button,
@@ -46,9 +66,11 @@ textarea {
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(217, 164, 65, 0.55);
-  background: linear-gradient(135deg, #f6e3a1, #d9a441);
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 28%),
+    linear-gradient(135deg, #f8e7a8, #d9a441 56%, #b9821e);
   color: #6a4a0c;
-  box-shadow: 0 10px 24px rgba(217, 164, 65, 0.2);
+  box-shadow: 0 10px 24px rgba(217, 164, 65, 0.24);
 }
 
 .coin-chip::after {
@@ -57,4 +79,12 @@ textarea {
   inset: 7px;
   border-radius: 999px;
   border: 1px solid rgba(106, 74, 12, 0.24);
+}
+
+.coin-chip::before {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border-radius: 999px;
+  background: rgba(106, 74, 12, 0.16);
 }

@@ -149,6 +149,7 @@ export async function getCurrentContext(): Promise<AppContext> {
         notify_on_transaction_completed: true,
         notify_on_repayment: true,
         notify_on_pending_reminder: true,
+        notify_on_monthly_expense_reminder: true,
         created_at: member.created_at,
         updated_at: member.created_at
       } satisfies Profile)

@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { CircleDollarSign, Coins, Landmark } from "lucide-react";
+import { Coins, ShieldCheck } from "lucide-react";
 import { balanceText, formatMoney } from "@/lib/format";
 
 export function BalanceCard({
@@ -12,45 +11,26 @@ export function BalanceCard({
   otherName?: string | null;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-lg border border-line bg-white p-5 shadow-soft sm:p-7">
-      <div className="pointer-events-none absolute -left-20 -top-16 h-72 w-72 opacity-[0.14] sm:-left-16 sm:-top-20 sm:h-96 sm:w-96">
-        <Image
-          src="/brand/al-gargeera-logo.png"
-          alt=""
-          fill
-          className="object-contain"
-          aria-hidden
-        />
-      </div>
-      <div className="pointer-events-none absolute left-5 top-8 flex -space-x-3 space-x-reverse opacity-80">
-        <span className="coin-chip scale-90">
-          <span className="text-sm font-black">ج</span>
-        </span>
-        <span className="coin-chip translate-y-3 scale-75">
-          <CircleDollarSign className="h-4 w-4" />
-        </span>
-        <span className="coin-chip -translate-y-2 scale-80">
-          <span className="text-sm font-black">$</span>
-        </span>
-      </div>
-      <div className="pointer-events-none absolute bottom-5 left-10 hidden items-end gap-1 opacity-70 sm:flex">
-        <span className="h-8 w-7 rounded-full border border-coin/50 bg-gradient-to-b from-coinSoft to-coin shadow-coin" />
-        <span className="h-11 w-7 rounded-full border border-coin/50 bg-gradient-to-b from-coinSoft to-coin shadow-coin" />
-        <span className="h-6 w-7 rounded-full border border-coin/50 bg-gradient-to-b from-coinSoft to-coin shadow-coin" />
-      </div>
-      <div className="relative">
-        <span className="inline-flex items-center gap-2 rounded-full border border-coinSoft bg-amber-50 px-3 py-1.5 text-sm font-black text-leaf">
-          <Coins className="h-4 w-4 text-coin" />
+    <section className="relative overflow-hidden rounded-lg border border-white/18 bg-leafDark/82 p-5 text-white shadow-elevated ring-1 ring-coin/20 backdrop-blur-xl sm:p-7">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(246,227,161,0.16),transparent_22%),radial-gradient(circle_at_88%_10%,rgba(217,164,65,0.12),transparent_20%),linear-gradient(135deg,rgba(47,107,63,0.74),rgba(23,32,23,0.78)_58%,rgba(10,28,17,0.86))]" />
+      <span className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-l from-transparent via-white/55 to-transparent" />
+      <span className="pointer-events-none absolute inset-0 bg-white/[0.035]" />
+      <span aria-hidden className="coin-chip pointer-events-none absolute left-6 top-8 rotate-[-18deg] scale-[0.36] opacity-25" />
+      <span aria-hidden className="coin-chip pointer-events-none absolute bottom-8 left-16 rotate-[21deg] scale-[0.32] opacity-20" />
+
+      <div className="relative sm:max-w-xl">
+        <span className="inline-flex items-center gap-2 rounded-full border border-coin/30 bg-white/10 px-3 py-1.5 text-sm font-black text-coinSoft backdrop-blur">
+          <Coins className="h-4 w-4" />
           ملخص الرصيد
         </span>
-        <h2 className="mt-4 text-[2rem] font-black leading-tight text-leafDark sm:text-5xl">
+        <h2 className="mt-4 text-[1.9rem] font-black leading-tight text-white sm:text-5xl">
           {balanceText(balance, otherName)}
         </h2>
-        <p className="mt-3 max-w-xl text-sm leading-7 text-muted">
-          الرصيد يعتمد على العمليات الموافق عليها فقط. أي شيء جديد يظهر لك منفصلًا حتى تتم مراجعته.
+        <p className="mt-3 text-sm leading-7 text-white/72">
+          يعرض الرصيد العمليات المعتمدة فقط. البنود المعلقة تبقى منفصلة إلى أن تتم مراجعتها.
         </p>
-        <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800">
-          <Landmark className="h-4 w-4" />
+        <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-coin/35 bg-coinSoft/12 px-3 py-2 text-sm font-bold text-coinSoft">
+          <ShieldCheck className="h-4 w-4" />
           قيد المراجعة: {formatMoney(Math.abs(pendingImpact))}
         </div>
       </div>

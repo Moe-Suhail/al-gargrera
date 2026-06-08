@@ -1,6 +1,7 @@
 import { createPrivilegedSupabaseClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/provider";
 import { buildEmailTemplate } from "@/lib/email/templates";
+import { startOfMonthIso } from "@/lib/monthly-expenses";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   EmailEntityType,
@@ -18,7 +19,8 @@ const SETTING_BY_EVENT: Partial<Record<EmailEventType, keyof Profile>> = {
   transaction_rejected: "notify_on_transaction_confirmed",
   repayment_created: "notify_on_repayment",
   repayment_confirmed: "notify_on_repayment",
-  pending_confirmation_reminder: "notify_on_pending_reminder"
+  pending_confirmation_reminder: "notify_on_pending_reminder",
+  monthly_expense_reminder: "notify_on_monthly_expense_reminder"
 };
 
 async function getEntity(
@@ -38,6 +40,15 @@ async function getEntity(
   if (entityType === "repayment") {
     const { data } = await supabase
       .from("repayments")
+      .select("*")
+      .eq("id", entityId)
+      .maybeSingle();
+    return data as NotificationEntity | null;
+  }
+
+  if (entityType === "monthly_expense") {
+    const { data } = await supabase
+      .from("monthly_expenses")
       .select("*")
       .eq("id", entityId)
       .maybeSingle();
@@ -151,6 +162,12 @@ export async function sendEmailNotification(
       .eq("event_type", eventType)
       .eq("entity_type", entityType)
       .eq("entity_id", entityId)
+      .gte(
+        "created_at",
+        eventType === "monthly_expense_reminder"
+          ? startOfMonthIso()
+          : "1970-01-01T00:00:00.000Z"
+      )
       .in("status", ["pending", "sent"])
       .limit(1)
       .maybeSingle();

@@ -6,6 +6,7 @@ import type {
   Attachment,
   CurrencyCode,
   DashboardData,
+  MonthlyExpense,
   Profile,
   Repayment,
   Transaction,
@@ -111,6 +112,22 @@ async function attachRepaymentProfiles(repayments: Repayment[]) {
     ...repayment,
     paid_by: profiles.get(repayment.paid_by_user_id),
     paid_to: profiles.get(repayment.paid_to_user_id)
+  }));
+}
+
+async function attachMonthlyExpenseProfiles(expenses: MonthlyExpense[]) {
+  const profileIds = expenses.flatMap((expense) => [
+    expense.paid_by_user_id,
+    expense.related_user_id,
+    expense.created_by
+  ]);
+  const profiles = await getProfilesByIds(profileIds);
+
+  return expenses.map((expense) => ({
+    ...expense,
+    paid_by: profiles.get(expense.paid_by_user_id),
+    related_user: profiles.get(expense.related_user_id),
+    creator: profiles.get(expense.created_by)
   }));
 }
 
@@ -255,6 +272,48 @@ export async function getRepayments(context: AppContext) {
       converted_amount_base: Number(repayment.converted_amount_base)
     }))
   );
+}
+
+export async function getMonthlyExpenses(context: AppContext) {
+  const result = await getMonthlyExpensesState(context);
+  return result.expenses;
+}
+
+export async function getMonthlyExpensesState(context: AppContext): Promise<{
+  expenses: MonthlyExpense[];
+  schemaMissing: boolean;
+}> {
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase || !context.accountSpace) {
+    return { expenses: [], schemaMissing: false };
+  }
+
+  const { data, error } = await supabase
+    .from("monthly_expenses")
+    .select("*")
+    .eq("account_space_id", context.accountSpace.id)
+    .order("is_active", { ascending: false })
+    .order("due_day", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Unable to load monthly expenses", error.message);
+    return {
+      expenses: [],
+      schemaMissing: error.code === "PGRST205"
+    };
+  }
+
+  const expenses = await attachMonthlyExpenseProfiles(
+    ((data ?? []) as MonthlyExpense[]).map((expense) => ({
+      ...expense,
+      amount: Number(expense.amount),
+      due_day: Number(expense.due_day)
+    }))
+  );
+
+  return { expenses, schemaMissing: false };
 }
 
 export async function getActivities(context: AppContext, limit = 30) {

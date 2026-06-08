@@ -16,7 +16,7 @@ const fields = [
   },
   {
     name: "notify_on_transaction_confirmed",
-    label: "عند الموافقة أو الرفض"
+    label: "عند الاعتماد أو الرفض"
   },
   {
     name: "notify_on_transaction_completed",
@@ -28,7 +28,11 @@ const fields = [
   },
   {
     name: "notify_on_pending_reminder",
-    label: "تذكير العمليات التي تنتظر الموافقة"
+    label: "تذكير العمليات التي تنتظر الاعتماد"
+  },
+  {
+    name: "notify_on_monthly_expense_reminder",
+    label: "تذكير المصاريف الشهرية الثابتة"
   }
 ] as const;
 
@@ -66,7 +70,7 @@ export default async function NotificationSettingsPage({
       ) : null}
       <form
         action={updateNotificationSettingsAction}
-        className="max-w-2xl rounded-lg border border-line bg-white p-5 shadow-sm"
+        className="max-w-2xl rounded-lg border border-white/80 bg-white/90 p-5 shadow-card ring-1 ring-line/60"
       >
         <div className="grid gap-3">
           {fields.map((field) => (
@@ -74,7 +78,7 @@ export default async function NotificationSettingsPage({
               key={field.name}
               className="flex items-center justify-between gap-4 rounded-lg border border-line bg-mintpaper px-4 py-3"
             >
-              <span className="text-sm font-bold text-leafDark">{field.label}</span>
+              <span className="text-sm font-bold text-ink">{field.label}</span>
               <input
                 className="h-5 w-5 accent-leaf"
                 defaultChecked={Boolean(context.profile?.[field.name])}

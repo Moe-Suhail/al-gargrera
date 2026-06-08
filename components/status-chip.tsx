@@ -9,7 +9,7 @@ export function StatusChip({ status }: { status: TransactionStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
         item.chip
       )}
     >

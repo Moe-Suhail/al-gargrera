@@ -2,6 +2,7 @@ import {
   Activity,
   Archive,
   Banknote,
+  CalendarClock,
   CheckCircle2,
   Clock3,
   Coins,
@@ -12,7 +13,7 @@ import {
   XCircle
 } from "lucide-react";
 
-export const APP_NAME = "الجرجيرة 💰";
+export const APP_NAME = "الجرجيرة";
 export const APP_TAGLINE = "مساحة خاصة لترتيب المدفوعات والرصيد بوضوح";
 export const BASE_CURRENCY = "EGP";
 
@@ -33,7 +34,7 @@ export const TRANSACTION_TYPES = {
   },
   saved_with_other: {
     label: "مبلغ محفوظ",
-    description: "مبلغ موجود عند الطرف الآخر",
+    description: "مبلغ موجود لدى الطرف الآخر",
     icon: Banknote
   },
   repayment: {
@@ -60,12 +61,12 @@ export const TRANSACTION_TYPES = {
 
 export const TRANSACTION_STATUSES = {
   pending_confirmation: {
-    label: "بانتظار الموافقة",
+    label: "بانتظار الاعتماد",
     chip: "border-amber-200 bg-amber-50 text-amber-800",
     icon: Clock3
   },
   confirmed: {
-    label: "مؤكدة",
+    label: "معتمدة",
     chip: "border-emerald-200 bg-emerald-50 text-emerald-800",
     icon: CheckCircle2
   },
@@ -88,6 +89,7 @@ export const TRANSACTION_STATUSES = {
 
 export const QUICK_ACTIONS = [
   { href: "/transactions/new", label: "عملية جديدة", icon: ReceiptText },
+  { href: "/monthly-expenses", label: "مصروف ثابت", icon: CalendarClock },
   { href: "/repayments", label: "تسجيل سداد", icon: RotateCcw },
   { href: "/converter", label: "تحويل عملة", icon: Coins },
   { href: "/reports", label: "التقارير", icon: Activity }
@@ -96,7 +98,7 @@ export const QUICK_ACTIONS = [
 export const EMPTY_STATES = {
   loading: "جاري تحميل البيانات...",
   noTransactions: "لا توجد عمليات حتى الآن",
-  noPending: "لا توجد عمليات تنتظر الموافقة",
+  noPending: "لا توجد عمليات تنتظر الاعتماد",
   exchangeRateError: "لم نتمكن من جلب سعر الصرف الآن",
   attachmentUploadError: "لم يتم رفع الإيصال، جرّب مرة أخرى",
   unauthorized: "لا يمكنك الوصول إلى هذه الصفحة",
@@ -105,7 +107,7 @@ export const EMPTY_STATES = {
 
 export const SUCCESS_MESSAGES = {
   transactionCreated: "تم تسجيل العملية",
-  transactionConfirmed: "تمت الموافقة على العملية",
+  transactionConfirmed: "تم اعتماد العملية",
   transactionRejected: "تم رفض العملية",
   editSaved: "تم حفظ التحديث",
   attachmentUploaded: "تم رفع الإيصال"

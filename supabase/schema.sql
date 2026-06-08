@@ -21,9 +21,13 @@ create table if not exists public.profiles (
   notify_on_transaction_completed boolean not null default true,
   notify_on_repayment boolean not null default true,
   notify_on_pending_reminder boolean not null default true,
+  notify_on_monthly_expense_reminder boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles
+add column if not exists notify_on_monthly_expense_reminder boolean not null default true;
 
 create table if not exists public.account_spaces (
   id uuid primary key default gen_random_uuid(),
@@ -97,6 +101,27 @@ create table if not exists public.repayments (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.monthly_expenses (
+  id uuid primary key default gen_random_uuid(),
+  account_space_id uuid not null references public.account_spaces(id) on delete cascade,
+  name text not null,
+  amount numeric(14, 2) not null check (amount > 0),
+  currency text not null default 'EGP' check (currency in ('EGP', 'USD', 'SAR', 'AED', 'EUR', 'GBP')),
+  due_day integer not null check (due_day between 1 and 31),
+  paid_by_user_id uuid not null references public.profiles(id),
+  related_user_id uuid not null references public.profiles(id),
+  transaction_type text not null default 'paid_for_other' check (transaction_type in ('paid_for_other', 'saved_with_other', 'repayment', 'shared_expense', 'manual_adjustment', 'other')),
+  notes text null,
+  is_active boolean not null default true,
+  reminder_enabled boolean not null default true,
+  last_completed_period text null,
+  last_completed_transaction_id uuid null references public.transactions(id) on delete set null,
+  last_reminded_period text null,
+  created_by uuid not null references public.profiles(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.attachments (
   id uuid primary key default gen_random_uuid(),
   account_space_id uuid not null references public.account_spaces(id) on delete cascade,
@@ -147,7 +172,8 @@ create table if not exists public.email_notifications (
     'repayment_confirmed',
     'receipt_uploaded',
     'password_changed',
-    'pending_confirmation_reminder'
+    'pending_confirmation_reminder',
+    'monthly_expense_reminder'
   )),
   entity_type text not null,
   entity_id uuid not null,
@@ -164,8 +190,27 @@ create index if not exists idx_account_members_user on public.account_members(us
 create index if not exists idx_transactions_space_status on public.transactions(account_space_id, status);
 create index if not exists idx_transactions_space_date on public.transactions(account_space_id, transaction_date desc);
 create index if not exists idx_repayments_space_status on public.repayments(account_space_id, status);
+create index if not exists idx_monthly_expenses_space_due on public.monthly_expenses(account_space_id, is_active, due_day);
 create index if not exists idx_activity_space_created on public.activity_logs(account_space_id, created_at desc);
 create index if not exists idx_email_notifications_lookup on public.email_notifications(account_space_id, recipient_user_id, event_type, entity_type, entity_id);
+
+alter table public.email_notifications
+drop constraint if exists email_notifications_event_type_check;
+
+alter table public.email_notifications
+add constraint email_notifications_event_type_check
+check (event_type in (
+  'transaction_created',
+  'transaction_confirmed',
+  'transaction_rejected',
+  'transaction_completed',
+  'repayment_created',
+  'repayment_confirmed',
+  'receipt_uploaded',
+  'password_changed',
+  'pending_confirmation_reminder',
+  'monthly_expense_reminder'
+));
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -190,6 +235,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists set_repayments_updated_at on public.repayments;
 create trigger set_repayments_updated_at
 before update on public.repayments
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_monthly_expenses_updated_at on public.monthly_expenses;
+create trigger set_monthly_expenses_updated_at
+before update on public.monthly_expenses
 for each row execute function public.set_updated_at();
 
 create or replace function public.current_profile_id()
@@ -222,6 +272,7 @@ alter table public.account_spaces enable row level security;
 alter table public.account_members enable row level security;
 alter table public.transactions enable row level security;
 alter table public.repayments enable row level security;
+alter table public.monthly_expenses enable row level security;
 alter table public.attachments enable row level security;
 alter table public.exchange_rate_cache enable row level security;
 alter table public.activity_logs enable row level security;
@@ -321,6 +372,34 @@ on public.repayments for update
 to authenticated
 using (public.is_account_member(account_space_id))
 with check (public.is_account_member(account_space_id));
+
+drop policy if exists "monthly expenses select members" on public.monthly_expenses;
+create policy "monthly expenses select members"
+on public.monthly_expenses for select
+to authenticated
+using (public.is_account_member(account_space_id));
+
+drop policy if exists "monthly expenses insert members" on public.monthly_expenses;
+create policy "monthly expenses insert members"
+on public.monthly_expenses for insert
+to authenticated
+with check (
+  public.is_account_member(account_space_id)
+  and created_by = public.current_profile_id()
+  and exists (select 1 from public.account_members where account_space_id = monthly_expenses.account_space_id and user_id = paid_by_user_id)
+  and exists (select 1 from public.account_members where account_space_id = monthly_expenses.account_space_id and user_id = related_user_id)
+);
+
+drop policy if exists "monthly expenses update members" on public.monthly_expenses;
+create policy "monthly expenses update members"
+on public.monthly_expenses for update
+to authenticated
+using (public.is_account_member(account_space_id))
+with check (
+  public.is_account_member(account_space_id)
+  and exists (select 1 from public.account_members where account_space_id = monthly_expenses.account_space_id and user_id = paid_by_user_id)
+  and exists (select 1 from public.account_members where account_space_id = monthly_expenses.account_space_id and user_id = related_user_id)
+);
 
 drop policy if exists "attachments select members" on public.attachments;
 create policy "attachments select members"

@@ -8,14 +8,15 @@ import type { Profile } from "@/lib/types";
 
 const EVENT_LABELS: Record<EmailEventType, string> = {
   transaction_created: "تم تسجيل عملية جديدة",
-  transaction_confirmed: "تمت الموافقة على العملية",
+  transaction_confirmed: "تم اعتماد العملية",
   transaction_rejected: "تم رفض العملية",
   transaction_completed: "اكتملت العملية",
   repayment_created: "تمت إضافة سداد جديد",
   repayment_confirmed: "تم قبول السداد",
   receipt_uploaded: "تم رفع إيصال",
   password_changed: "تم تغيير كلمة المرور",
-  pending_confirmation_reminder: "لديك عملية تنتظر الموافقة"
+  pending_confirmation_reminder: "لديك عملية تنتظر الاعتماد",
+  monthly_expense_reminder: "تذكير بمصروف شهري ثابت"
 };
 
 function statusLabel(status?: string) {
@@ -30,6 +31,13 @@ function entityDate(entity: NotificationEntity) {
 
 function appUrl(path = "/") {
   return `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}${path}`;
+}
+
+function entityAmount(entity: NotificationEntity) {
+  const amount = entity.original_amount ?? entity.amount;
+  const currency = entity.original_currency ?? entity.currency;
+
+  return amount && currency ? formatMoney(Number(amount), currency) : null;
 }
 
 export function buildEmailTemplate({
@@ -49,21 +57,26 @@ export function buildEmailTemplate({
       ? `/transactions/${entity.id}`
       : entityType === "repayment"
         ? "/repayments"
-        : "/profile";
+        : entityType === "monthly_expense"
+          ? "/monthly-expenses"
+          : "/profile";
   const link = appUrl(detailPath);
-  const amount =
-    entity.original_amount && entity.original_currency
-      ? formatMoney(Number(entity.original_amount), entity.original_currency)
-      : null;
+  const amount = entityAmount(entity);
 
   const safeLines =
     eventType === "password_changed"
       ? ["تم تغيير كلمة المرور بنجاح."]
-      : [
-          amount ? `المبلغ: ${amount}` : null,
-          entity.status ? `الحالة: ${statusLabel(entity.status)}` : null,
-          `التاريخ: ${entityDate(entity)}`
-        ].filter(Boolean);
+      : eventType === "monthly_expense_reminder"
+        ? [
+            entity.name ? `المصروف: ${entity.name}` : null,
+            amount ? `المبلغ: ${amount}` : null,
+            entity.due_day ? `موعد الاستحقاق: يوم ${entity.due_day} من الشهر` : null
+          ].filter(Boolean)
+        : [
+            amount ? `المبلغ: ${amount}` : null,
+            entity.status ? `الحالة: ${statusLabel(entity.status)}` : null,
+            `التاريخ: ${entityDate(entity)}`
+          ].filter(Boolean);
 
   const subject =
     eventType === "transaction_completed"
@@ -76,7 +89,7 @@ export function buildEmailTemplate({
     "",
     ...safeLines,
     "",
-    "يمكنك فتح التطبيق لمراجعة التفاصيل.",
+    "افتح التطبيق لمراجعة التفاصيل.",
     link
   ].join("\n");
 

@@ -35,6 +35,7 @@ export type Profile = {
   notify_on_transaction_completed: boolean;
   notify_on_repayment: boolean;
   notify_on_pending_reminder: boolean;
+  notify_on_monthly_expense_reminder: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -115,6 +116,30 @@ export type Repayment = {
   updated_at: string;
   paid_by?: Profile;
   paid_to?: Profile;
+};
+
+export type MonthlyExpense = {
+  id: string;
+  account_space_id: string;
+  name: string;
+  amount: number;
+  currency: CurrencyCode;
+  due_day: number;
+  paid_by_user_id: string;
+  related_user_id: string;
+  transaction_type: TransactionType;
+  notes: string | null;
+  is_active: boolean;
+  reminder_enabled: boolean;
+  last_completed_period: string | null;
+  last_completed_transaction_id: string | null;
+  last_reminded_period: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  paid_by?: Profile;
+  related_user?: Profile;
+  creator?: Profile;
 };
 
 export type Attachment = {

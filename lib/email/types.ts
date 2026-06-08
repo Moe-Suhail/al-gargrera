@@ -7,9 +7,14 @@ export type EmailEventType =
   | "repayment_confirmed"
   | "receipt_uploaded"
   | "password_changed"
-  | "pending_confirmation_reminder";
+  | "pending_confirmation_reminder"
+  | "monthly_expense_reminder";
 
-export type EmailEntityType = "transaction" | "repayment" | "profile";
+export type EmailEntityType =
+  | "transaction"
+  | "repayment"
+  | "profile"
+  | "monthly_expense";
 
 export type EmailStatus = "pending" | "sent" | "failed" | "skipped";
 
@@ -30,8 +35,12 @@ export type NotificationEntity = {
   account_space_id: string;
   original_amount?: number;
   original_currency?: string;
+  amount?: number;
+  currency?: string;
   status?: string;
   transaction_date?: string;
   payment_date?: string;
+  due_day?: number;
+  name?: string;
   created_by?: string;
 };
