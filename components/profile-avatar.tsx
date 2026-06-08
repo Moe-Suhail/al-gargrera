@@ -24,7 +24,7 @@ export function ProfileAvatar({
         alt={name ?? "الملف الشخصي"}
         className={cn(
           sizeClass,
-          "rounded-lg border border-line bg-white object-cover"
+          "rounded-lg border border-line bg-white object-contain p-0.5"
         )}
       />
     );

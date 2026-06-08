@@ -10,9 +10,33 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { uploadProfileImage } from "@/lib/storage";
 
 const currencySchema = z.enum(["EGP", "USD", "SAR", "AED", "EUR", "GBP"]);
+const MAX_PROFILE_IMAGE_SIZE = 3 * 1024 * 1024;
+const ALLOWED_PROFILE_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp"
+]);
 
 function cleanText(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
+}
+
+function isFileLike(value: FormDataEntryValue | null): value is File {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as {
+    arrayBuffer?: unknown;
+    size?: unknown;
+    type?: unknown;
+  };
+
+  return (
+    typeof candidate.arrayBuffer === "function" &&
+    typeof candidate.size === "number" &&
+    typeof candidate.type === "string"
+  );
 }
 
 function isStrongPassword(password: string) {
@@ -39,7 +63,15 @@ export async function updateProfileAction(formData: FormData) {
     redirect("/profile?error=required");
   }
 
-  if (profileImage instanceof File && profileImage.size > 0) {
+  if (isFileLike(profileImage) && profileImage.size > 0) {
+    if (profileImage.size > MAX_PROFILE_IMAGE_SIZE) {
+      redirect("/profile?error=image-size");
+    }
+
+    if (!ALLOWED_PROFILE_IMAGE_TYPES.has(profileImage.type)) {
+      redirect("/profile?error=image-type");
+    }
+
     try {
       const adminSupabase = createSupabaseAdminClient() ?? supabase;
       profileImageUrl = await uploadProfileImage({

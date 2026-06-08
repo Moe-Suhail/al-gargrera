@@ -50,8 +50,6 @@ export async function uploadProfileImage({
     throw new Error("Profile image must be an image.");
   }
 
-  await ensureProfileImagesBucket(supabase);
-
   const cleanName = safeFileName(file.name) || "profile-image";
   const extension = cleanName.includes(".") ? cleanName.split(".").pop() : "jpg";
   const path = `${profileId}/${Date.now()}.${extension}`;

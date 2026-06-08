@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Camera, ImageUp, UserRound } from "lucide-react";
 
+const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
 export function ProfileImagePicker({
   imageUrl,
   name
@@ -12,6 +15,7 @@ export function ProfileImagePicker({
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState("");
+  const [error, setError] = useState("");
   const activeUrl = previewUrl || imageUrl || "";
   const initials = useMemo(() => {
     const cleaned = name?.trim();
@@ -35,7 +39,7 @@ export function ProfileImagePicker({
             <img
               src={activeUrl}
               alt={name ?? "الصورة الشخصية"}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain p-1"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-leaf">
@@ -54,8 +58,13 @@ export function ProfileImagePicker({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-black text-ink">الصورة الشخصية</p>
           <p className="mt-1 text-xs leading-5 text-sage">
-            اختر صورة، وستظهر المعاينة فورًا قبل الحفظ. استخدم صورة مربعة أو قريبة من المربع لأفضل نتيجة.
+            اختر صورة، وستظهر كاملة قبل الحفظ بدون قص تلقائي. الحد الأقصى 3 ميجابايت.
           </p>
+          {error ? (
+            <p className="mt-2 rounded-lg border border-red-200 bg-red-50/85 px-2 py-1 text-xs font-bold text-red-700">
+              {error}
+            </p>
+          ) : null}
           {fileName ? (
             <p className="mt-2 truncate text-xs font-bold text-leaf">
               جاهزة للحفظ: {fileName}
@@ -78,6 +87,23 @@ export function ProfileImagePicker({
             if (!file) {
               setFileName("");
               setPreviewUrl(null);
+              setError("");
+              return;
+            }
+
+            if (!ALLOWED_TYPES.has(file.type)) {
+              event.currentTarget.value = "";
+              setFileName("");
+              setPreviewUrl(null);
+              setError("استخدم JPG أو PNG أو WebP فقط.");
+              return;
+            }
+
+            if (file.size > MAX_IMAGE_SIZE) {
+              event.currentTarget.value = "";
+              setFileName("");
+              setPreviewUrl(null);
+              setError("الصورة كبيرة. اختر صورة لا تتجاوز 3 ميجابايت.");
               return;
             }
 
@@ -85,6 +111,7 @@ export function ProfileImagePicker({
               URL.revokeObjectURL(previewUrl);
             }
 
+            setError("");
             setFileName(file.name);
             setPreviewUrl(URL.createObjectURL(file));
           }}
