@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
+import { KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { SUPPORTED_CURRENCIES } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
 import { getCurrentContext } from "@/lib/current-context";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
-import { ProfileAvatar } from "@/components/profile-avatar";
+import { ProfileImagePicker } from "@/components/profile-image-picker";
 import { SetupState } from "@/components/setup-state";
 import {
   changePasswordAction,
@@ -12,7 +13,8 @@ import {
 } from "@/app/profile/actions";
 
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-leafDark outline-none transition focus:border-leaf focus:ring-2 focus:ring-limeSoft";
+  "min-h-11 w-full rounded-lg border border-white/75 bg-white/72 px-3 py-2 text-sm text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] outline-none backdrop-blur-xl transition placeholder:text-sage/70 focus:border-coin/55 focus:bg-white focus:ring-2 focus:ring-coinSoft/45";
+const labelClass = "text-sm font-black text-ink";
 
 const ERROR_COPY: Record<string, string> = {
   required: "اكتب الاسم المعروض.",
@@ -20,7 +22,7 @@ const ERROR_COPY: Record<string, string> = {
   image: "لم يتم رفع الصورة. استخدم JPG أو PNG أو WebP بحجم مناسب.",
   "password-match": "تأكيد كلمة المرور غير مطابق.",
   "password-weak": "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف ورقم.",
-  password: "لم يتم تحديث كلمة المرور، حاول مرة أخرى"
+  password: "تعذر تحديث كلمة المرور، حاول مرة أخرى"
 };
 
 export const dynamic = "force-dynamic";
@@ -39,7 +41,7 @@ export default async function ProfilePage({
     return (
       <SetupState
         title="المساحة غير جاهزة"
-        description="أضف المستخدمين المصرّح لهم إلى نفس المساحة بعد تشغيل schema.sql."
+        description="أضف المستخدمين المصرح لهم إلى نفس المساحة بعد تشغيل schema.sql."
       />
     );
   }
@@ -59,15 +61,16 @@ export default async function ProfilePage({
     <AppShell context={context}>
       <PageHeader
         title="الملف الشخصي"
-        subtitle="بياناتك الشخصية مرتبطة بحساب Supabase Auth الخاص بك."
+        subtitle="حدّث بيانات الحساب، الصورة، العملة الافتراضية، ومكان الإقامة الحالي."
       />
+
       {success ? (
-        <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+        <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/85 px-3 py-2 text-sm font-semibold text-emerald-700">
           {success}
         </p>
       ) : null}
       {error ? (
-        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50/85 px-3 py-2 text-sm font-semibold text-red-700">
           {error}
         </p>
       ) : null}
@@ -75,43 +78,23 @@ export default async function ProfilePage({
       <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
         <form
           action={updateProfileAction}
-          className="rounded-lg border border-line bg-white p-5 shadow-sm"
+          encType="multipart/form-data"
+          className="rounded-lg border border-white/75 bg-white/62 p-5 shadow-[0_22px_62px_rgba(31,42,31,0.10)] ring-1 ring-white/70 backdrop-blur-2xl"
         >
           <input
             type="hidden"
             name="profile_image_url"
             value={profile.profile_image_url ?? ""}
           />
-          <div className="mb-5 flex items-center gap-4">
-            <ProfileAvatar
-              imageUrl={profile.profile_image_url}
-              name={profile.display_name}
-              size="lg"
-            />
-            <div>
-              <h2 className="text-xl font-black text-leafDark">
-                {profile.display_name}
-              </h2>
-              <p className="mt-1 text-sm text-muted">{profile.email}</p>
-            </div>
-          </div>
 
-          <label className="mb-4 grid gap-2 rounded-lg border border-line bg-mintpaper p-4">
-            <span className="text-sm font-black text-leafDark">الصورة الشخصية</span>
-            <span className="text-xs leading-5 text-muted">
-              ارفع صورة واضحة وسنستخدمها في الهيدر والإعدادات.
-            </span>
-            <input
-              accept="image/jpeg,image/png,image/webp"
-              className="min-h-11 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-leafDark outline-none transition file:ml-3 file:rounded-md file:border-0 file:bg-leaf file:px-3 file:py-2 file:text-sm file:font-bold file:text-white focus:border-leaf focus:ring-2 focus:ring-limeSoft"
-              name="profile_image"
-              type="file"
-            />
-          </label>
+          <ProfileImagePicker
+            imageUrl={profile.profile_image_url}
+            name={profile.display_name}
+          />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">الاسم</span>
+              <span className={labelClass}>الاسم</span>
               <input
                 className={inputClass}
                 defaultValue={profile.display_name}
@@ -120,26 +103,28 @@ export default async function ProfilePage({
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">البريد</span>
-              <input
-                className={`${inputClass} bg-mintpaper text-muted`}
-                dir="ltr"
-                readOnly
-                value={profile.email}
-              />
+              <span className={labelClass}>البريد</span>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-sage" />
+                <input
+                  className={`${inputClass} pr-9 text-sage`}
+                  dir="ltr"
+                  readOnly
+                  value={profile.email}
+                />
+              </div>
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">الهاتف</span>
+              <span className={labelClass}>الهاتف</span>
               <input
                 className={inputClass}
                 defaultValue={profile.phone ?? ""}
                 name="phone"
+                placeholder="اختياري"
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">
-                العملة الافتراضية
-              </span>
+              <span className={labelClass}>العملة الافتراضية</span>
               <select
                 className={inputClass}
                 defaultValue={profile.default_currency ?? "EGP"}
@@ -153,25 +138,25 @@ export default async function ProfilePage({
               </select>
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">الدولة</span>
+              <span className={labelClass}>الدولة</span>
               <input
                 className={inputClass}
                 defaultValue={profile.country ?? ""}
                 name="country"
+                placeholder="مصر"
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">المدينة</span>
+              <span className={labelClass}>المدينة</span>
               <input
                 className={inputClass}
                 defaultValue={profile.city ?? ""}
                 name="city"
+                placeholder="القاهرة"
               />
             </label>
             <label className="grid gap-2 sm:col-span-2">
-              <span className="text-sm font-bold text-leafDark">
-                مكان الإقامة الحالي
-              </span>
+              <span className={labelClass}>مكان الإقامة الحالي</span>
               <input
                 className={inputClass}
                 defaultValue={profile.current_residence_label ?? ""}
@@ -180,7 +165,7 @@ export default async function ProfilePage({
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-bold text-leafDark">المنطقة الزمنية</span>
+              <span className={labelClass}>المنطقة الزمنية</span>
               <input
                 className={inputClass}
                 defaultValue={profile.timezone ?? ""}
@@ -190,12 +175,11 @@ export default async function ProfilePage({
             </label>
           </div>
 
-          <p className="mt-4 rounded-lg bg-mintpaper px-3 py-2 text-sm leading-6 text-muted">
-            لا يتم حفظ عنوان منزل دقيق هنا. استخدم الدولة والمدينة أو وصفًا عامًا
-            لمكان الإقامة الحالي.
+          <p className="mt-4 rounded-lg border border-white/70 bg-white/50 px-3 py-2 text-sm leading-6 text-sage backdrop-blur-xl">
+            لا يتم حفظ عنوان منزل دقيق هنا. استخدم الدولة والمدينة أو وصفًا عامًا لمكان الإقامة الحالي.
           </p>
           <button
-            className="mt-5 rounded-lg bg-leaf px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark"
+            className="mt-5 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-5 py-3 text-sm font-black text-white shadow-soft transition hover:brightness-105"
             type="submit"
           >
             حفظ الملف الشخصي
@@ -203,13 +187,16 @@ export default async function ProfilePage({
         </form>
 
         <div className="grid gap-5">
-          <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-black text-leafDark">تغيير كلمة المرور</h2>
+          <section className="rounded-lg border border-white/75 bg-white/62 p-5 shadow-card ring-1 ring-white/70 backdrop-blur-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-leaf text-coinSoft">
+                <KeyRound className="h-5 w-5" />
+              </span>
+              <h2 className="text-lg font-black text-ink">تغيير كلمة المرور</h2>
+            </div>
             <form action={changePasswordAction} className="mt-4 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-sm font-bold text-leafDark">
-                  كلمة المرور الجديدة
-                </span>
+                <span className={labelClass}>كلمة المرور الجديدة</span>
                 <input
                   autoComplete="new-password"
                   className={inputClass}
@@ -220,9 +207,7 @@ export default async function ProfilePage({
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-sm font-bold text-leafDark">
-                  تأكيد كلمة المرور
-                </span>
+                <span className={labelClass}>تأكيد كلمة المرور</span>
                 <input
                   autoComplete="new-password"
                   className={inputClass}
@@ -233,25 +218,31 @@ export default async function ProfilePage({
                 />
               </label>
               <button
-                className="rounded-lg border border-leaf bg-white px-5 py-3 text-sm font-bold text-leaf transition hover:bg-limeSoft"
+                className="rounded-lg border border-leaf/35 bg-white/70 px-5 py-3 text-sm font-black text-leaf transition hover:bg-limeSoft"
                 type="submit"
               >
                 تحديث كلمة المرور
               </button>
             </form>
           </section>
-          <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-black text-leafDark">بيانات الحساب</h2>
+
+          <section className="rounded-lg border border-white/75 bg-white/62 p-5 shadow-card ring-1 ring-white/70 backdrop-blur-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-limeSoft text-leaf">
+                <ShieldCheck className="h-5 w-5" />
+              </span>
+              <h2 className="text-lg font-black text-ink">بيانات الحساب</h2>
+            </div>
             <dl className="mt-4 grid gap-3 text-sm">
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">تاريخ الإنشاء</dt>
-                <dd className="font-semibold text-leafDark">
+                <dt className="text-sage">تاريخ الإنشاء</dt>
+                <dd className="font-semibold text-ink">
                   {formatDateTime(profile.created_at)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">آخر تحديث</dt>
-                <dd className="font-semibold text-leafDark">
+                <dt className="text-sage">آخر تحديث</dt>
+                <dd className="font-semibold text-ink">
                   {formatDateTime(profile.updated_at)}
                 </dd>
               </div>

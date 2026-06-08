@@ -27,7 +27,24 @@ create table if not exists public.profiles (
 );
 
 alter table public.profiles
-add column if not exists notify_on_monthly_expense_reminder boolean not null default true;
+add column if not exists display_name text not null default 'مستخدم',
+add column if not exists email text not null default '',
+add column if not exists phone text null,
+add column if not exists country text null,
+add column if not exists city text null,
+add column if not exists current_residence_label text null,
+add column if not exists default_currency text not null default 'EGP',
+add column if not exists timezone text null,
+add column if not exists profile_image_url text null,
+add column if not exists receive_email_notifications boolean not null default true,
+add column if not exists notify_on_transaction_created boolean not null default true,
+add column if not exists notify_on_transaction_confirmed boolean not null default true,
+add column if not exists notify_on_transaction_completed boolean not null default true,
+add column if not exists notify_on_repayment boolean not null default true,
+add column if not exists notify_on_pending_reminder boolean not null default true,
+add column if not exists notify_on_monthly_expense_reminder boolean not null default true,
+add column if not exists created_at timestamptz not null default now(),
+add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.account_spaces (
   id uuid primary key default gen_random_uuid(),
@@ -501,6 +518,33 @@ with check (
   bucket_id = 'transaction-attachments'
   and (storage.foldername(name))[1] ~* '^[0-9a-f-]{36}$'
   and public.is_account_member(((storage.foldername(name))[1])::uuid)
+);
+
+drop policy if exists "profile images read public" on storage.objects;
+create policy "profile images read public"
+on storage.objects for select
+using (bucket_id = 'profile-images');
+
+drop policy if exists "profile images insert own" on storage.objects;
+create policy "profile images insert own"
+on storage.objects for insert
+to authenticated
+with check (
+  bucket_id = 'profile-images'
+  and (storage.foldername(name))[1] = public.current_profile_id()::text
+);
+
+drop policy if exists "profile images update own" on storage.objects;
+create policy "profile images update own"
+on storage.objects for update
+to authenticated
+using (
+  bucket_id = 'profile-images'
+  and (storage.foldername(name))[1] = public.current_profile_id()::text
+)
+with check (
+  bucket_id = 'profile-images'
+  and (storage.foldername(name))[1] = public.current_profile_id()::text
 );
 
 -- Seed guidance:
