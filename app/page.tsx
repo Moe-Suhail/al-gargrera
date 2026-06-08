@@ -72,9 +72,9 @@ export default async function DashboardPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="group rounded-lg border border-white/80 bg-white/90 p-4 shadow-card ring-1 ring-line/60 transition hover:-translate-y-0.5 hover:bg-limeSoft"
+              className="group rounded-lg border border-line/70 bg-white/90 p-4 shadow-card ring-1 ring-line/50 transition-colors hover:bg-limeSoft"
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-lime/60 bg-limeSoft text-leaf shadow-sm transition group-hover:bg-white">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-lime/60 bg-limeSoft text-leaf shadow-sm transition-colors group-hover:bg-white">
                 <Icon className="h-5 w-5" />
               </span>
               <span className="mt-3 block text-sm font-black text-ink">

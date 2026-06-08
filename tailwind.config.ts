@@ -24,11 +24,11 @@ const config: Config = {
         line: "#E1E8D8"
       },
       boxShadow: {
-        soft: "0 14px 40px rgba(47, 107, 63, 0.10)",
-        card: "0 18px 46px rgba(30, 49, 29, 0.08)",
-        elevated: "0 28px 70px rgba(18, 48, 27, 0.18)",
-        nav: "0 -18px 46px rgba(30, 49, 29, 0.14)",
-        coin: "0 10px 26px rgba(217, 164, 65, 0.18)"
+        soft: "0 8px 22px rgba(47, 107, 63, 0.08)",
+        card: "0 8px 22px rgba(30, 49, 29, 0.06)",
+        elevated: "0 14px 34px rgba(18, 48, 27, 0.12)",
+        nav: "0 -8px 22px rgba(30, 49, 29, 0.10)",
+        coin: "0 6px 14px rgba(217, 164, 65, 0.14)"
       }
     }
   },

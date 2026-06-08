@@ -45,6 +45,76 @@ body::before {
     linear-gradient(90deg, rgba(47, 107, 63, 0.06), transparent 42%, rgba(201, 242, 77, 0.07));
 }
 
+.page-loading {
+  min-height: 50vh;
+}
+
+.loading-block {
+  background: linear-gradient(90deg, #edf4df, #ffffff, #edf4df);
+  background-size: 200% 100%;
+  animation: loading-sheen 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-sheen {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  body::before {
+    display: none;
+  }
+
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  [class*="shadow-["],
+  .shadow-card,
+  .shadow-soft,
+  .shadow-elevated,
+  .shadow-nav {
+    box-shadow: 0 6px 18px rgba(30, 49, 29, 0.06) !important;
+  }
+
+  .hover\:-translate-y-0\.5:hover {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 90ms !important;
+  }
+
+  .loading-block {
+    animation-duration: 1.2s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 button,
 input,
 select,

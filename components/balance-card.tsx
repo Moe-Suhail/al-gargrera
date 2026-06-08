@@ -11,15 +11,12 @@ export function BalanceCard({
   otherName?: string | null;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-lg border border-white/18 bg-leafDark/82 p-5 text-white shadow-elevated ring-1 ring-coin/20 backdrop-blur-xl sm:p-7">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(246,227,161,0.16),transparent_22%),radial-gradient(circle_at_88%_10%,rgba(217,164,65,0.12),transparent_20%),linear-gradient(135deg,rgba(47,107,63,0.74),rgba(23,32,23,0.78)_58%,rgba(10,28,17,0.86))]" />
+    <section className="relative overflow-hidden rounded-lg border border-coin/18 bg-leafDark p-5 text-white shadow-elevated ring-1 ring-coin/20 sm:p-7">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(47,107,63,0.70),rgba(23,32,23,0.78)_58%,rgba(10,28,17,0.84))]" />
       <span className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-l from-transparent via-white/55 to-transparent" />
-      <span className="pointer-events-none absolute inset-0 bg-white/[0.035]" />
-      <span aria-hidden className="coin-chip pointer-events-none absolute left-6 top-8 rotate-[-18deg] scale-[0.36] opacity-25" />
-      <span aria-hidden className="coin-chip pointer-events-none absolute bottom-8 left-16 rotate-[21deg] scale-[0.32] opacity-20" />
 
       <div className="relative sm:max-w-xl">
-        <span className="inline-flex items-center gap-2 rounded-full border border-coin/30 bg-white/10 px-3 py-1.5 text-sm font-black text-coinSoft backdrop-blur">
+        <span className="inline-flex items-center gap-2 rounded-full border border-coin/30 bg-white/10 px-3 py-1.5 text-sm font-black text-coinSoft">
           <Coins className="h-4 w-4" />
           ملخص الرصيد
         </span>

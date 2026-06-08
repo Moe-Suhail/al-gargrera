@@ -48,7 +48,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen pb-24 md:pb-0">
-      <header className="sticky top-0 z-20 border-b border-white/70 bg-surface/72 shadow-[0_16px_44px_rgba(31,42,31,0.09)] backdrop-blur-2xl">
+      <header className="sticky top-0 z-20 border-b border-line/80 bg-surface/95 shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
             <BrandMark />
@@ -61,7 +61,7 @@ export function AppShell({
           <div className="flex items-center gap-2">
             <Link
               href="/profile"
-              className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/75 bg-white/68 px-2 text-xs font-bold text-sage shadow-sm backdrop-blur-xl transition hover:border-leaf/30 hover:bg-limeSoft/70"
+              className="inline-flex h-11 items-center gap-2 rounded-lg border border-line/80 bg-white/90 px-2 text-xs font-bold text-sage transition-colors hover:border-leaf/30 hover:bg-limeSoft/70"
             >
               <ProfileAvatar
                 imageUrl={context.profile?.profile_image_url}
@@ -72,7 +72,7 @@ export function AppShell({
             </Link>
             <form action={signOutAction}>
               <button
-                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/75 bg-white/68 text-leaf shadow-sm backdrop-blur-xl transition hover:border-leaf/30 hover:bg-limeSoft/70"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line/80 bg-white/90 text-leaf transition-colors hover:border-leaf/30 hover:bg-limeSoft/70"
                 title="تسجيل الخروج"
                 type="submit"
               >
@@ -88,7 +88,7 @@ export function AppShell({
               <Link
                 key={item.href}
                 href={item.href}
-                className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/70 bg-white/54 px-3 py-2 text-sm font-bold text-ink shadow-sm backdrop-blur-xl transition hover:border-leaf/25 hover:bg-limeSoft/72"
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-line/80 bg-white/86 px-3 py-2 text-sm font-bold text-ink transition-colors hover:border-leaf/25 hover:bg-limeSoft/72"
               >
                 <Icon className="h-4 w-4 text-leaf" />
                 {item.label}
@@ -98,7 +98,7 @@ export function AppShell({
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl px-4 py-5">{children}</main>
-      <nav className="fixed inset-x-3 bottom-3 z-30 rounded-lg border border-white/75 bg-white/76 px-2 py-2 shadow-nav backdrop-blur-2xl md:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-30 rounded-lg border border-line/80 bg-white/96 px-2 py-2 shadow-nav md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
@@ -109,8 +109,8 @@ export function AppShell({
                 href={item.href}
                 className={
                   isPrimary
-                    ? "relative -mt-5 flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] text-[11px] font-black text-white shadow-elevated transition hover:bg-leafDark"
-                    : "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold text-sage transition hover:bg-limeSoft/80 hover:text-ink"
+                    ? "relative -mt-5 flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] text-[11px] font-black text-white shadow-soft transition-colors hover:bg-leafDark"
+                    : "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold text-sage transition-colors hover:bg-limeSoft/80 hover:text-ink"
                 }
               >
                 {isPrimary ? (

@@ -25,7 +25,7 @@ export function TransactionCard({
     transaction.created_by !== currentProfileId;
 
   return (
-    <article className="rounded-lg border border-white/80 bg-white/92 p-4 shadow-card ring-1 ring-line/60 transition hover:-translate-y-0.5 hover:shadow-soft">
+    <article className="rounded-lg border border-line/70 bg-white/92 p-4 shadow-card ring-1 ring-line/50 transition-colors hover:border-leaf/25">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
