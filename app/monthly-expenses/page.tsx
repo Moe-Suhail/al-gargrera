@@ -7,7 +7,8 @@ import {
   Coins,
   PauseCircle,
   PlayCircle,
-  ReceiptText
+  ReceiptText,
+  WalletCards
 } from "lucide-react";
 import {
   SUPPORTED_CURRENCIES,
@@ -18,7 +19,6 @@ import { getMonthlyExpensesState } from "@/lib/data";
 import { formatMoney } from "@/lib/format";
 import {
   daysUntilDue,
-  dueDateIso,
   isCompletedThisPeriod
 } from "@/lib/monthly-expenses";
 import { AppShell } from "@/components/app-shell";
@@ -32,8 +32,8 @@ import {
 } from "@/app/monthly-expenses/actions";
 
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-leaf focus:ring-2 focus:ring-limeSoft";
-const labelClass = "text-sm font-bold text-ink";
+  "min-h-11 w-full rounded-lg border border-white/75 bg-white/72 px-3 py-2 text-sm text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] outline-none backdrop-blur-xl transition placeholder:text-sage/70 focus:border-coin/55 focus:bg-white focus:ring-2 focus:ring-coinSoft/45";
+const labelClass = "text-[13px] font-black text-ink";
 
 const ERROR_COPY: Record<string, string> = {
   required: "أكمل اسم المصروف، المبلغ، ويوم الاستحقاق.",
@@ -77,45 +77,82 @@ export default async function MonthlyExpensesPage({
   const success = resolvedSearchParams.success
     ? SUCCESS_COPY[resolvedSearchParams.success]
     : null;
+  const activeExpenses = expenses.filter((expense) => expense.is_active);
+  const completedThisMonth = expenses.filter((expense) =>
+    isCompletedThisPeriod(expense)
+  ).length;
+  const nextExpense = activeExpenses
+    .filter((expense) => !isCompletedThisPeriod(expense))
+    .sort((a, b) => daysUntilDue(a.due_day) - daysUntilDue(b.due_day))[0];
+  const nextDue = nextExpense
+    ? `${nextExpense.name} · يوم ${nextExpense.due_day}`
+    : "لا يوجد استحقاق مفتوح";
 
   return (
     <AppShell context={context}>
       <PageHeader
         title="المصاريف الثابتة"
-        subtitle="عرّف المصروف مرة واحدة، ثم أكمله شهريًا ليُنشئ عملية عادية تدخل في الرصيد والتقارير."
+        subtitle="استحقاقاتك الشهرية، جاهزة للتحويل إلى عمليات بضغطة."
       />
 
+      <section className="mb-5 overflow-hidden rounded-lg border border-white/75 bg-white/58 p-5 shadow-[0_24px_70px_rgba(31,42,31,0.10)] ring-1 ring-white/70 backdrop-blur-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-black text-leaf">نظام المصاريف المتكررة</p>
+            <h2 className="mt-1 text-2xl font-black leading-tight text-ink">
+              متابعة شهرية بلا فوضى
+            </h2>
+          </div>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-coin/35 bg-gradient-to-br from-leaf to-[#12351f] text-coinSoft shadow-elevated">
+            <WalletCards className="h-6 w-6" />
+          </span>
+        </div>
+        <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-lg border border-white/65 bg-white/44 backdrop-blur-xl">
+          <div className="px-3 py-3">
+            <p className="text-[11px] font-bold text-sage">نشطة</p>
+            <p className="mt-1 text-xl font-black text-ink">{activeExpenses.length}</p>
+          </div>
+          <div className="border-x border-white/65 px-3 py-3">
+            <p className="text-[11px] font-bold text-sage">مكتملة</p>
+            <p className="mt-1 text-xl font-black text-ink">{completedThisMonth}</p>
+          </div>
+          <div className="px-3 py-3">
+            <p className="text-[11px] font-bold text-sage">القادم</p>
+            <p className="mt-1 truncate text-sm font-black text-ink">{nextDue}</p>
+          </div>
+        </div>
+      </section>
+
       {success ? (
-        <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+        <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/85 px-3 py-2 text-sm font-semibold text-emerald-700">
           {success}
         </p>
       ) : null}
       {error ? (
-        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50/85 px-3 py-2 text-sm font-semibold text-red-700">
           {error}
         </p>
       ) : null}
       {schemaMissing ? (
-        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold leading-7 text-amber-800">
-          قاعدة البيانات تحتاج تحديثًا قبل استخدام المصاريف الثابتة. افتح Supabase SQL Editor وشغّل ملف
-          {" "}
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50/85 px-3 py-2 text-sm font-semibold leading-7 text-amber-800">
+          قاعدة البيانات تحتاج تحديثًا قبل استخدام المصاريف الثابتة. افتح Supabase SQL Editor وشغّل ملف{" "}
           <span dir="ltr">supabase/schema.sql</span>
-          {" "}
-          ثم أعد تحميل الصفحة.
+          {" "}ثم أعد تحميل الصفحة.
         </p>
       ) : null}
 
       <form
         action={createMonthlyExpenseAction}
-        className="rounded-lg border border-white/80 bg-white/92 p-5 shadow-card ring-1 ring-line/60"
+        className="relative overflow-hidden rounded-lg border border-white/75 bg-white/62 p-5 shadow-[0_22px_62px_rgba(31,42,31,0.10)] ring-1 ring-white/70 backdrop-blur-2xl"
       >
-        <div className="mb-4 flex items-center gap-2">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-leaf text-white">
+        <span className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-l from-transparent via-coin/45 to-transparent" />
+        <div className="mb-5 flex items-center gap-3">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-leaf to-[#163c24] text-coinSoft shadow-soft">
             <CalendarClock className="h-5 w-5" />
           </span>
           <div>
             <h2 className="text-lg font-black text-ink">مصروف شهري جديد</h2>
-            <p className="text-sm text-sage">مثال: إيجار، اشتراك، قسط، أو مصروف متكرر.</p>
+            <p className="text-sm text-sage">إيجار، اشتراك، قسط، أو أي بند يتكرر.</p>
           </div>
         </div>
 
@@ -210,12 +247,12 @@ export default async function MonthlyExpensesPage({
             <textarea
               className={`${inputClass} min-h-24 resize-y leading-7`}
               name="notes"
-              placeholder="أي تفصيل مختصر يظهر داخل العملية عند إكمال المصروف"
+              placeholder="تفصيل مختصر يظهر داخل العملية عند إكمال المصروف"
             />
           </label>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 rounded-lg bg-mintpaper p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 border-t border-white/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <label className="inline-flex items-center gap-2 text-sm font-bold text-ink">
             <input
               className="h-5 w-5 accent-leaf"
@@ -226,7 +263,7 @@ export default async function MonthlyExpensesPage({
             تذكير شهري قبل موعد الاستحقاق
           </label>
           <button
-            className="rounded-lg bg-leaf px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark"
+            className="rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-5 py-3 text-sm font-black text-white shadow-soft transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
             disabled={schemaMissing}
             type="submit"
           >
@@ -247,7 +284,7 @@ export default async function MonthlyExpensesPage({
               const dueIn = daysUntilDue(expense.due_day);
               const dueText =
                 dueIn === 0
-                  ? "يستحق اليوم"
+                  ? "اليوم"
                   : dueIn > 0
                     ? `بعد ${dueIn} يوم`
                     : `متأخر ${Math.abs(dueIn)} يوم`;
@@ -255,12 +292,12 @@ export default async function MonthlyExpensesPage({
               return (
                 <article
                   key={expense.id}
-                  className="rounded-lg border border-white/80 bg-white/92 p-4 shadow-card ring-1 ring-line/60"
+                  className="rounded-lg border border-white/75 bg-white/62 p-4 shadow-card ring-1 ring-white/70 backdrop-blur-2xl"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-coin/30 bg-coinSoft/75 text-leaf">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-coin/30 bg-coinSoft/70 text-leaf shadow-sm">
                           <Coins className="h-5 w-5" />
                         </span>
                         <h3 className="text-lg font-black text-ink">{expense.name}</h3>
@@ -283,12 +320,12 @@ export default async function MonthlyExpensesPage({
                         {formatMoney(expense.amount, expense.currency)}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2 text-sm text-sage">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-mintpaper px-3 py-1">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/70 bg-white/55 px-3 py-1 backdrop-blur-xl">
                           <CalendarClock className="h-4 w-4" />
                           يوم {expense.due_day} · {dueText}
                         </span>
                         {expense.reminder_enabled ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-mintpaper px-3 py-1">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-white/70 bg-white/55 px-3 py-1 backdrop-blur-xl">
                             <Bell className="h-4 w-4" />
                             التذكير مفعل
                           </span>
@@ -298,7 +335,7 @@ export default async function MonthlyExpensesPage({
                         {[expense.paid_by, expense.related_user].filter(Boolean).map((profile) => (
                           <div
                             key={profile?.id}
-                            className="inline-flex items-center gap-2 rounded-lg bg-mintpaper px-2 py-1.5"
+                            className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/50 px-2 py-1.5 backdrop-blur-xl"
                           >
                             <ProfileAvatar
                               imageUrl={profile?.profile_image_url}
@@ -317,7 +354,7 @@ export default async function MonthlyExpensesPage({
                       {expense.last_completed_transaction_id ? (
                         <Link
                           href={`/transactions/${expense.last_completed_transaction_id}`}
-                          className="inline-flex items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-bold text-leaf transition hover:bg-limeSoft"
+                          className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/75 bg-white/55 px-4 py-2 text-sm font-bold text-leaf transition hover:bg-limeSoft/70"
                         >
                           <ReceiptText className="h-4 w-4" />
                           آخر عملية
@@ -326,7 +363,7 @@ export default async function MonthlyExpensesPage({
                       <form action={completeMonthlyExpenseAction}>
                         <input type="hidden" name="id" value={expense.id} />
                         <button
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-leaf px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-leafDark disabled:cursor-not-allowed disabled:opacity-55"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-4 py-2 text-sm font-black text-white shadow-soft transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
                           disabled={!expense.is_active || completed}
                           type="submit"
                         >
@@ -342,7 +379,7 @@ export default async function MonthlyExpensesPage({
                           value={expense.is_active ? "false" : "true"}
                         />
                         <button
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:bg-mintpaper"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/75 bg-white/55 px-4 py-2 text-sm font-bold text-ink transition hover:bg-white"
                           type="submit"
                         >
                           {expense.is_active ? (
@@ -356,7 +393,7 @@ export default async function MonthlyExpensesPage({
                     </div>
                   </div>
                   {expense.notes ? (
-                    <p className="mt-3 rounded-lg bg-mintpaper px-3 py-2 text-sm leading-6 text-sage">
+                    <p className="mt-3 rounded-lg border border-white/65 bg-white/46 px-3 py-2 text-sm leading-6 text-sage backdrop-blur-xl">
                       {expense.notes}
                     </p>
                   ) : null}
@@ -364,7 +401,7 @@ export default async function MonthlyExpensesPage({
               );
             })
           ) : (
-            <p className="rounded-lg border border-white/80 bg-white/90 p-5 text-sm text-sage shadow-card ring-1 ring-line/60">
+            <p className="rounded-lg border border-white/75 bg-white/62 p-5 text-sm text-sage shadow-card ring-1 ring-white/70 backdrop-blur-2xl">
               لا توجد مصاريف ثابتة بعد.
             </p>
           )}

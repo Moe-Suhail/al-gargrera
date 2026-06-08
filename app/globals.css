@@ -26,7 +26,7 @@ body {
   margin: 0;
   color: var(--foreground);
   background:
-    linear-gradient(180deg, rgba(255, 253, 244, 0.98) 0%, rgba(246, 248, 236, 0.98) 46%, rgba(238, 244, 227, 0.98) 100%),
+    linear-gradient(180deg, rgba(255, 254, 248, 0.99) 0%, rgba(248, 250, 241, 0.99) 48%, rgba(240, 245, 229, 0.99) 100%),
     #fbfcf5;
   font-family: Calibri, "Segoe UI", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -40,9 +40,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 14% 18%, rgba(217, 164, 65, 0.14), transparent 24%),
-    radial-gradient(circle at 90% 6%, rgba(201, 242, 77, 0.18), transparent 20%),
-    radial-gradient(circle at 72% 82%, rgba(47, 107, 63, 0.10), transparent 26%);
+    linear-gradient(118deg, transparent 0%, rgba(217, 164, 65, 0.11) 38%, transparent 64%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), transparent 34%),
+    linear-gradient(90deg, rgba(47, 107, 63, 0.06), transparent 42%, rgba(201, 242, 77, 0.07));
 }
 
 button,
