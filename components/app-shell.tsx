@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Activity,
@@ -40,9 +41,21 @@ const mobileNavItems = [
 
 function BrandMark() {
   return (
-    <span className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-coin/40 bg-leafDark text-xl font-black text-coinSoft shadow-[0_14px_28px_rgba(31,42,31,0.18)]">
-      ج
-      <span className="absolute bottom-1.5 left-1.5 h-2 w-2 rounded-full bg-coin shadow-coin" />
+    <span className="relative inline-flex h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-coin/35 bg-surface shadow-[0_14px_28px_rgba(31,42,31,0.16)]">
+      <Image
+        src="/brand/al-gargeera-logo.png"
+        alt={APP_NAME}
+        fill
+        sizes="44px"
+        className="object-cover"
+        priority
+        style={{
+          objectPosition: "50% 31%",
+          transform: "scale(2.35)",
+          transformOrigin: "50% 31%"
+        }}
+      />
+      <span className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-white/10" />
       <span className="absolute inset-0 rounded-lg ring-1 ring-inset ring-white/12" />
     </span>
   );
