@@ -47,7 +47,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen pb-24 md:pb-0">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-line/80 bg-surface/95 shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
@@ -98,8 +98,8 @@ export function AppShell({
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl px-4 py-5">{children}</main>
-      <nav className="fixed inset-x-3 bottom-3 z-30 rounded-lg border border-line/80 bg-white/96 px-2 py-2 shadow-nav md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+      <nav className="mx-auto w-full max-w-5xl px-4 pb-5 md:hidden">
+        <div className="grid grid-cols-5 gap-1 rounded-lg border border-line/80 bg-white/96 px-2 py-2 shadow-card">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const isPrimary = item.href === "/transactions/new";
@@ -109,7 +109,7 @@ export function AppShell({
                 href={item.href}
                 className={
                   isPrimary
-                    ? "relative -mt-5 flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] text-[11px] font-black text-white shadow-soft transition-colors hover:bg-leafDark"
+                    ? "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] text-[11px] font-black text-white shadow-soft transition-colors hover:bg-leafDark"
                     : "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold text-sage transition-colors hover:bg-limeSoft/80 hover:text-ink"
                 }
               >

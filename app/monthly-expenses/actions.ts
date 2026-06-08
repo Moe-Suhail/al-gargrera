@@ -7,6 +7,7 @@ import { BASE_CURRENCY } from "@/lib/constants";
 import { logActivity } from "@/lib/activity";
 import { ensureMember, requireActionContext } from "@/lib/action-context";
 import { getExchangeRateWithCache } from "@/lib/exchange-rates/cache";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { parseNumber, todayIsoDate } from "@/lib/format";
 import {
   dueDateIso,
@@ -268,14 +269,18 @@ export async function updateMonthlyExpenseAction(formData: FormData) {
 export async function deleteMonthlyExpenseAction(formData: FormData) {
   const id = cleanText(formData.get("id"));
   const { context, supabase, expense } = await getOwnedMonthlyExpense(id);
+  const deleteClient = createSupabaseAdminClient() ?? supabase;
 
-  const { error } = await supabase
+  const { data: deleted, error } = await deleteClient
     .from("monthly_expenses")
     .delete()
     .eq("id", id)
-    .eq("account_space_id", context.accountSpace.id);
+    .eq("account_space_id", context.accountSpace.id)
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !deleted) {
+    console.error("Unable to delete monthly expense", error?.message);
     redirect("/monthly-expenses?error=delete");
   }
 
