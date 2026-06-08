@@ -96,6 +96,22 @@ export async function createMonthlyExpenseAction(formData: FormData) {
     redirect("/monthly-expenses?error=members");
   }
 
+  const { data: duplicates } = await supabase
+    .from("monthly_expenses")
+    .select("id")
+    .eq("account_space_id", context.accountSpace.id)
+    .eq("name", name)
+    .eq("amount", amount)
+    .eq("currency", currency)
+    .eq("due_day", dueDay)
+    .eq("paid_by_user_id", paidByUserId)
+    .eq("related_user_id", relatedUserId)
+    .limit(1);
+
+  if (duplicates?.length) {
+    redirect("/monthly-expenses?error=duplicate");
+  }
+
   const { data: expense, error } = await supabase
     .from("monthly_expenses")
     .insert({
@@ -185,6 +201,102 @@ export async function toggleMonthlyExpenseAction(formData: FormData) {
 
   revalidatePath("/monthly-expenses");
   redirect("/monthly-expenses?success=saved");
+}
+
+export async function updateMonthlyExpenseAction(formData: FormData) {
+  const id = cleanText(formData.get("id"));
+  const { context, supabase, expense } = await getOwnedMonthlyExpense(id);
+  const memberIds = context.members.map((member) => member.user_id);
+  const name = cleanText(formData.get("name"));
+  const amount = parseNumber(formData.get("amount"));
+  const currency = parseCurrency(formData.get("currency"));
+  const dueDay = Math.trunc(parseNumber(formData.get("due_day")));
+  const paidByUserId = ensureMember(memberIds, formData.get("paid_by_user_id"));
+  const relatedUserId = ensureMember(memberIds, formData.get("related_user_id"));
+  const transactionType = parseTransactionType(formData.get("transaction_type"));
+  const notes = cleanText(formData.get("notes"));
+  const reminderEnabled = formData.get("reminder_enabled") === "on";
+
+  if (!name || amount <= 0 || dueDay < 1 || dueDay > 31) {
+    redirect("/monthly-expenses?error=required");
+  }
+
+  if (paidByUserId === relatedUserId) {
+    redirect("/monthly-expenses?error=members");
+  }
+
+  const { error } = await supabase
+    .from("monthly_expenses")
+    .update({
+      name,
+      amount,
+      currency,
+      due_day: dueDay,
+      paid_by_user_id: paidByUserId,
+      related_user_id: relatedUserId,
+      transaction_type: transactionType,
+      notes: notes || null,
+      reminder_enabled: reminderEnabled
+    })
+    .eq("id", id)
+    .eq("account_space_id", context.accountSpace.id);
+
+  if (error) {
+    redirect("/monthly-expenses?error=save");
+  }
+
+  await logActivity({
+    supabase,
+    accountSpaceId: context.accountSpace.id,
+    entityType: "monthly_expense",
+    entityId: id,
+    action: "عدّل مصروفًا شهريًا",
+    oldValue: {
+      name: expense.name,
+      amount: expense.amount,
+      currency: expense.currency,
+      due_day: expense.due_day
+    },
+    newValue: { name, amount, currency, due_day: dueDay },
+    performedBy: context.profile.id
+  });
+
+  revalidatePath("/monthly-expenses");
+  redirect("/monthly-expenses?success=saved");
+}
+
+export async function deleteMonthlyExpenseAction(formData: FormData) {
+  const id = cleanText(formData.get("id"));
+  const { context, supabase, expense } = await getOwnedMonthlyExpense(id);
+
+  const { error } = await supabase
+    .from("monthly_expenses")
+    .delete()
+    .eq("id", id)
+    .eq("account_space_id", context.accountSpace.id);
+
+  if (error) {
+    redirect("/monthly-expenses?error=delete");
+  }
+
+  await logActivity({
+    supabase,
+    accountSpaceId: context.accountSpace.id,
+    entityType: "monthly_expense",
+    entityId: id,
+    action: "حذف مصروفًا شهريًا",
+    oldValue: {
+      name: expense.name,
+      amount: expense.amount,
+      currency: expense.currency,
+      due_day: expense.due_day
+    },
+    performedBy: context.profile.id
+  });
+
+  revalidatePath("/");
+  revalidatePath("/monthly-expenses");
+  redirect("/monthly-expenses?success=deleted");
 }
 
 export async function completeMonthlyExpenseAction(formData: FormData) {

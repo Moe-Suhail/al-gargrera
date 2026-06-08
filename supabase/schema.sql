@@ -418,6 +418,12 @@ with check (
   and exists (select 1 from public.account_members where account_space_id = monthly_expenses.account_space_id and user_id = related_user_id)
 );
 
+drop policy if exists "monthly expenses delete members" on public.monthly_expenses;
+create policy "monthly expenses delete members"
+on public.monthly_expenses for delete
+to authenticated
+using (public.is_account_member(account_space_id));
+
 drop policy if exists "attachments select members" on public.attachments;
 create policy "attachments select members"
 on public.attachments for select

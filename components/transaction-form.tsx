@@ -84,19 +84,34 @@ export function TransactionForm({
   const [manualRate, setManualRate] = useState(
     Boolean(transaction?.rate_is_manual)
   );
+  const [settlementMode, setSettlementMode] = useState<
+    "convert_to_base" | "keep_original"
+  >(
+    transaction &&
+      transaction.original_currency !== BASE_CURRENCY &&
+      transaction.base_currency === transaction.original_currency
+      ? "keep_original"
+      : "convert_to_base"
+  );
   const [rateStatus, setRateStatus] = useState("");
   const [loadingRate, setLoadingRate] = useState(false);
 
   const numericAmount = Number(amount) || 0;
+  const shouldKeepOriginalCurrency =
+    currency !== BASE_CURRENCY && settlementMode === "keep_original";
+  const effectiveBaseCurrency = shouldKeepOriginalCurrency
+    ? currency
+    : BASE_CURRENCY;
+  const effectiveRate = shouldKeepOriginalCurrency ? 1 : Number(rate) || 0;
   const convertedAmount = useMemo(
-    () => numericAmount * (Number(rate) || 0),
-    [numericAmount, rate]
+    () => numericAmount * effectiveRate,
+    [effectiveRate, numericAmount]
   );
 
   useEffect(() => {
-    if (currency === BASE_CURRENCY) {
+    if (currency === BASE_CURRENCY || shouldKeepOriginalCurrency) {
       setRate(1);
-      setRateSource("base");
+      setRateSource(currency === BASE_CURRENCY ? "base" : "same-currency");
       setRateDate(todayIsoDate());
       setRateStatus("");
       return;
@@ -148,7 +163,7 @@ export function TransactionForm({
     return () => {
       active = false;
     };
-  }, [currency, manualRate]);
+  }, [currency, manualRate, shouldKeepOriginalCurrency]);
 
   const action = mode === "edit" ? updateTransactionAction : createTransactionAction;
 
@@ -158,7 +173,13 @@ export function TransactionForm({
       className="rounded-lg border border-line bg-white p-4 shadow-sm sm:p-5"
     >
       {transaction ? <input type="hidden" name="id" value={transaction.id} /> : null}
-      <input type="hidden" name="exchange_rate_to_base" value={rate || 0} />
+      <input type="hidden" name="settlement_mode" value={settlementMode} />
+      <input type="hidden" name="base_currency" value={effectiveBaseCurrency} />
+      <input
+        type="hidden"
+        name="exchange_rate_to_base"
+        value={effectiveRate || 0}
+      />
       <input
         type="hidden"
         name="converted_amount_base"
@@ -264,14 +285,59 @@ export function TransactionForm({
 
       {currency !== BASE_CURRENCY ? (
         <div className="mt-4 rounded-lg border border-coinSoft bg-amber-50/70 p-4">
+          <div className="mb-4 grid gap-2 sm:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-white bg-white/70 p-3 text-sm text-leafDark">
+              <input
+                checked={settlementMode === "keep_original"}
+                className="mt-1 h-4 w-4 accent-leaf"
+                name="settlement_mode_choice"
+                onChange={() => setSettlementMode("keep_original")}
+                type="radio"
+              />
+              <span>
+                <span className="block font-black">حفظ بنفس العملة</span>
+                <span className="mt-1 block text-xs leading-5 text-muted">
+                  مثال: 100 دولار تبقى 100 دولار محفوظة لدى الطرف الآخر.
+                </span>
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-white bg-white/70 p-3 text-sm text-leafDark">
+              <input
+                checked={settlementMode === "convert_to_base"}
+                className="mt-1 h-4 w-4 accent-leaf"
+                name="settlement_mode_choice"
+                onChange={() => setSettlementMode("convert_to_base")}
+                type="radio"
+              />
+              <span>
+                <span className="block font-black">تحويل للجنيه</span>
+                <span className="mt-1 block text-xs leading-5 text-muted">
+                  استخدمها عندما تريد احتساب القيمة بالجنيه المصري.
+                </span>
+              </span>
+            </label>
+          </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold text-leafDark">
-                سعر اليوم: {rateLine(currency, BASE_CURRENCY, Number(rate) || 0)}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                القيمة بالجنيه: {formatMoney(convertedAmount, BASE_CURRENCY)}
-              </p>
+              {shouldKeepOriginalCurrency ? (
+                <>
+                  <p className="text-sm font-bold text-leafDark">
+                    سيتم حفظ العملية كما هي: {formatMoney(numericAmount, currency)}
+                  </p>
+                  <p className="mt-1 text-sm text-muted">
+                    لا يوجد تحويل ولا سعر صرف لهذه العملية.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-leafDark">
+                    سعر اليوم: {rateLine(currency, BASE_CURRENCY, Number(rate) || 0)}
+                  </p>
+                  <p className="mt-1 text-sm text-muted">
+                    القيمة بالجنيه: {formatMoney(convertedAmount, BASE_CURRENCY)}
+                  </p>
+                </>
+              )}
               {rateStatus ? (
                 <p className="mt-1 text-xs font-semibold text-amber-800">
                   {loadingRate ? "جاري جلب سعر الصرف..." : rateStatus}
@@ -282,13 +348,14 @@ export function TransactionForm({
               <input
                 checked={manualRate}
                 className="h-4 w-4 accent-leaf"
+                disabled={shouldKeepOriginalCurrency}
                 onChange={(event) => setManualRate(event.target.checked)}
                 type="checkbox"
               />
               استخدام سعر مختلف يدويًا
             </label>
           </div>
-          {manualRate ? (
+          {manualRate && !shouldKeepOriginalCurrency ? (
             <label className="mt-3 grid gap-2 sm:max-w-xs">
               <span className={labelClass}>سعر الصرف المستخدم</span>
               <input

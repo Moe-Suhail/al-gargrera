@@ -23,11 +23,19 @@ function parseCurrency(value: FormDataEntryValue | null): CurrencyCode {
 }
 
 function exchangeFields(formData: FormData, currency: CurrencyCode, amount: number) {
-  if (currency === BASE_CURRENCY) {
+  const requestedBaseCurrency = parseCurrency(formData.get("base_currency"));
+  const settlementMode = cleanText(formData.get("settlement_mode"));
+
+  if (
+    currency === BASE_CURRENCY ||
+    requestedBaseCurrency === currency ||
+    settlementMode === "keep_original"
+  ) {
     return {
+      baseCurrency: currency,
       exchangeRateToBase: 1,
       convertedAmountBase: amount,
-      exchangeRateSource: "base",
+      exchangeRateSource: currency === BASE_CURRENCY ? "base" : "same-currency",
       exchangeRateDate: todayIsoDate(),
       rateIsManual: false
     };
@@ -40,6 +48,7 @@ function exchangeFields(formData: FormData, currency: CurrencyCode, amount: numb
   );
 
   return {
+    baseCurrency: BASE_CURRENCY,
     exchangeRateToBase,
     convertedAmountBase,
     exchangeRateSource: cleanText(formData.get("exchange_rate_source")) || "manual",
@@ -90,7 +99,7 @@ export async function createTransactionAction(formData: FormData) {
       status: "pending_confirmation",
       original_amount: amount,
       original_currency: currency,
-      base_currency: BASE_CURRENCY,
+      base_currency: rate.baseCurrency,
       exchange_rate_to_base: rate.exchangeRateToBase,
       converted_amount_base: rate.convertedAmountBase,
       exchange_rate_source: rate.exchangeRateSource,
@@ -411,6 +420,7 @@ export async function updateTransactionAction(formData: FormData) {
       status: nextStatus,
       original_amount: amount,
       original_currency: currency,
+      base_currency: rate.baseCurrency,
       exchange_rate_to_base: rate.exchangeRateToBase,
       converted_amount_base: rate.convertedAmountBase,
       exchange_rate_source: rate.exchangeRateSource,

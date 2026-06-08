@@ -5,9 +5,11 @@ import {
   CalendarClock,
   CheckCircle2,
   Coins,
+  Pencil,
   PauseCircle,
   PlayCircle,
   ReceiptText,
+  Trash2,
   WalletCards
 } from "lucide-react";
 import {
@@ -25,10 +27,13 @@ import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { SetupState } from "@/components/setup-state";
+import { SubmitButton } from "@/components/submit-button";
 import {
   completeMonthlyExpenseAction,
   createMonthlyExpenseAction,
-  toggleMonthlyExpenseAction
+  deleteMonthlyExpenseAction,
+  toggleMonthlyExpenseAction,
+  updateMonthlyExpenseAction
 } from "@/app/monthly-expenses/actions";
 
 const inputClass =
@@ -42,13 +47,16 @@ const ERROR_COPY: Record<string, string> = {
   missing: "هذا المصروف غير موجود.",
   inactive: "فعّل المصروف أولًا قبل إكماله.",
   completed: "تم إكمال هذا المصروف لهذا الشهر بالفعل.",
+  duplicate: "هذا المصروف موجود بالفعل. عدّل النسخة الموجودة أو احذف التكرارات.",
+  delete: "تعذر حذف المصروف الثابت.",
   rate: "تعذر جلب سعر الصرف لهذا المصروف.",
   transaction: "تعذر إنشاء العملية من المصروف الثابت."
 };
 
 const SUCCESS_COPY: Record<string, string> = {
   created: "تم إضافة المصروف الشهري الثابت.",
-  saved: "تم حفظ التحديث."
+  saved: "تم حفظ التحديث.",
+  deleted: "تم حذف المصروف الثابت."
 };
 
 export const dynamic = "force-dynamic";
@@ -262,13 +270,13 @@ export default async function MonthlyExpensesPage({
             />
             تذكير شهري قبل موعد الاستحقاق
           </label>
-          <button
+          <SubmitButton
             className="rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-5 py-3 text-sm font-black text-white shadow-soft transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
             disabled={schemaMissing}
-            type="submit"
+            pendingLabel="جاري حفظ المصروف..."
           >
             حفظ المصروف
-          </button>
+          </SubmitButton>
         </div>
       </form>
 
@@ -362,14 +370,14 @@ export default async function MonthlyExpensesPage({
                       ) : null}
                       <form action={completeMonthlyExpenseAction}>
                         <input type="hidden" name="id" value={expense.id} />
-                        <button
+                        <SubmitButton
                           className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-4 py-2 text-sm font-black text-white shadow-soft transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
                           disabled={!expense.is_active || completed}
-                          type="submit"
+                          pendingLabel="جاري الإكمال..."
                         >
                           <CheckCircle2 className="h-4 w-4" />
                           إكمال هذا الشهر
-                        </button>
+                        </SubmitButton>
                       </form>
                       <form action={toggleMonthlyExpenseAction}>
                         <input type="hidden" name="id" value={expense.id} />
@@ -378,9 +386,9 @@ export default async function MonthlyExpensesPage({
                           name="is_active"
                           value={expense.is_active ? "false" : "true"}
                         />
-                        <button
+                        <SubmitButton
                           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/75 bg-white/55 px-4 py-2 text-sm font-bold text-ink transition hover:bg-white"
-                          type="submit"
+                          pendingLabel="جاري الحفظ..."
                         >
                           {expense.is_active ? (
                             <PauseCircle className="h-4 w-4 text-sage" />
@@ -388,7 +396,18 @@ export default async function MonthlyExpensesPage({
                             <PlayCircle className="h-4 w-4 text-leaf" />
                           )}
                           {expense.is_active ? "إيقاف مؤقت" : "تفعيل"}
-                        </button>
+                        </SubmitButton>
+                      </form>
+                      <form action={deleteMonthlyExpenseAction}>
+                        <input type="hidden" name="id" value={expense.id} />
+                        <SubmitButton
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-black text-red-700 transition hover:bg-red-100"
+                          confirmMessage={`حذف "${expense.name}" نهائيًا؟`}
+                          pendingLabel="جاري الحذف..."
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          حذف
+                        </SubmitButton>
                       </form>
                     </div>
                   </div>
@@ -397,6 +416,133 @@ export default async function MonthlyExpensesPage({
                       {expense.notes}
                     </p>
                   ) : null}
+                  <details className="mt-3 rounded-lg border border-white/70 bg-white/48 px-3 py-3 backdrop-blur-xl">
+                    <summary className="flex cursor-pointer items-center gap-2 text-sm font-black text-leaf">
+                      <Pencil className="h-4 w-4" />
+                      تعديل المصروف والمبلغ
+                    </summary>
+                    <form
+                      action={updateMonthlyExpenseAction}
+                      className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                    >
+                      <input type="hidden" name="id" value={expense.id} />
+                      <label className="grid gap-2 lg:col-span-2">
+                        <span className={labelClass}>اسم المصروف</span>
+                        <input
+                          className={inputClass}
+                          defaultValue={expense.name}
+                          name="name"
+                          required
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>المبلغ</span>
+                        <input
+                          className={inputClass}
+                          defaultValue={expense.amount}
+                          inputMode="decimal"
+                          min="0"
+                          name="amount"
+                          required
+                          step="0.01"
+                          type="number"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>العملة</span>
+                        <select
+                          className={inputClass}
+                          defaultValue={expense.currency}
+                          name="currency"
+                        >
+                          {SUPPORTED_CURRENCIES.map((currency) => (
+                            <option key={currency.code} value={currency.code}>
+                              {currency.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>يستحق يوم</span>
+                        <input
+                          className={inputClass}
+                          defaultValue={expense.due_day}
+                          max="31"
+                          min="1"
+                          name="due_day"
+                          required
+                          type="number"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>من يدفع</span>
+                        <select
+                          className={inputClass}
+                          defaultValue={expense.paid_by_user_id}
+                          name="paid_by_user_id"
+                        >
+                          {context.members.map((member) => (
+                            <option key={member.user_id} value={member.user_id}>
+                              {member.profile.display_name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>لمن / الطرف المرتبط</span>
+                        <select
+                          className={inputClass}
+                          defaultValue={expense.related_user_id}
+                          name="related_user_id"
+                        >
+                          {context.members.map((member) => (
+                            <option key={member.user_id} value={member.user_id}>
+                              {member.profile.display_name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className={labelClass}>نوع العملية</span>
+                        <select
+                          className={inputClass}
+                          defaultValue={expense.transaction_type}
+                          name="transaction_type"
+                        >
+                          {Object.entries(TRANSACTION_TYPES).map(([value, item]) => (
+                            <option key={value} value={value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-2 sm:col-span-2 lg:col-span-4">
+                        <span className={labelClass}>ملاحظات</span>
+                        <textarea
+                          className={`${inputClass} min-h-24 resize-y leading-7`}
+                          defaultValue={expense.notes ?? ""}
+                          name="notes"
+                        />
+                      </label>
+                      <div className="flex flex-col gap-3 border-t border-white/70 pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-4">
+                        <label className="inline-flex items-center gap-2 text-sm font-bold text-ink">
+                          <input
+                            className="h-5 w-5 accent-leaf"
+                            defaultChecked={expense.reminder_enabled}
+                            name="reminder_enabled"
+                            type="checkbox"
+                          />
+                          تذكير شهري
+                        </label>
+                        <SubmitButton
+                          className="rounded-lg bg-gradient-to-b from-leaf to-[#173f26] px-5 py-3 text-sm font-black text-white shadow-soft transition hover:brightness-105"
+                          pendingLabel="جاري حفظ التعديل..."
+                        >
+                          حفظ التعديل
+                        </SubmitButton>
+                      </div>
+                    </form>
+                  </details>
                 </article>
               );
             })
