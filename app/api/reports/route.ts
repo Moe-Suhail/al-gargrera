@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCurrentContext } from "@/lib/current-context";
-import { getRepayments, getTransactions } from "@/lib/data";
+import {
+  getRepayments,
+  getTransactions,
+  repaymentLedgerAmount,
+  transactionLedgerAmount
+} from "@/lib/data";
 
 function csvEscape(value: unknown) {
   const text = String(value ?? "");
@@ -38,7 +43,7 @@ export async function GET() {
       transaction.description,
       transaction.original_amount,
       transaction.original_currency,
-      transaction.converted_amount_base,
+      transactionLedgerAmount(transaction),
       transaction.base_currency,
       transaction.status,
       transaction.paid_by?.display_name ?? "",
@@ -50,7 +55,7 @@ export async function GET() {
       repayment.notes ?? "سداد",
       repayment.original_amount,
       repayment.original_currency,
-      repayment.converted_amount_base,
+      repaymentLedgerAmount(repayment),
       repayment.base_currency,
       repayment.status,
       repayment.paid_by?.display_name ?? "",

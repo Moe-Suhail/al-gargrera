@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Download } from "lucide-react";
 import { TRANSACTION_STATUSES } from "@/lib/constants";
 import { getCurrentContext, getOtherMember } from "@/lib/current-context";
-import { getDashboardData } from "@/lib/data";
+import { getDashboardData, transactionLedgerAmount } from "@/lib/data";
 import { formatMoney } from "@/lib/format";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
@@ -42,7 +42,7 @@ export default async function ReportsPage() {
         totals.set(
           transaction.base_currency,
           (totals.get(transaction.base_currency) ?? 0) +
-            transaction.converted_amount_base
+            transactionLedgerAmount(transaction)
         );
       });
 

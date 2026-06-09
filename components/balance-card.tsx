@@ -18,7 +18,9 @@ export function BalanceCard({
 }) {
   const name = profileName(otherName);
   const activeBalances = balances.filter((item) => Math.abs(item.amount) >= 0.01);
-  const activePending = pendingBalances.filter(
+  const receivableBalances = activeBalances.filter((item) => item.amount > 0);
+  const payableBalances = activeBalances.filter((item) => item.amount < 0);
+  const hasPending = pendingBalances.some(
     (item) => Math.abs(item.amount) >= 0.01
   );
 
@@ -32,44 +34,42 @@ export function BalanceCard({
           <Coins className="h-4 w-4" />
           ملخص الرصيد
         </span>
-        {activeBalances.length ? (
+        {receivableBalances.length ? (
           <div className="mt-4 grid gap-3">
-            {activeBalances.map((item) => {
-              const isReceivable = item.amount > 0;
-
-              return (
-                <div key={item.currency}>
-                  <p className="text-sm font-bold text-white/68">
-                    {isReceivable ? `مستحق لك من ${name}` : `مستحق عليك لـ${name}`}
-                  </p>
-                  <p className="mt-1 text-[1.9rem] font-black leading-tight text-white sm:text-5xl">
-                    {formatMoney(Math.abs(item.amount), item.currency)}
-                  </p>
-                </div>
-              );
-            })}
+            {receivableBalances.map((item) => (
+              <div key={item.currency}>
+                <p className="text-sm font-bold text-white/68">
+                  مستحق لك من {name}
+                </p>
+                <p className="mt-1 text-[1.9rem] font-black leading-tight text-white sm:text-5xl">
+                  {formatMoney(item.amount, item.currency)}
+                </p>
+              </div>
+            ))}
           </div>
         ) : (
           <h2 className="mt-4 text-[1.9rem] font-black leading-tight text-white sm:text-5xl">
-            الرصيد متوازن
+            لا يوجد مبلغ مستحق لك
           </h2>
         )}
+        {payableBalances.length ? (
+          <div className="mt-4 grid gap-2 rounded-lg border border-white/10 bg-white/10 p-3 text-sm">
+            <p className="font-black text-coinSoft">مستحق عليك بشكل منفصل</p>
+            {payableBalances.map((item) => (
+              <p key={item.currency} className="font-bold text-white/76">
+                لـ{name}: {formatMoney(Math.abs(item.amount), item.currency)}
+              </p>
+            ))}
+          </div>
+        ) : null}
         <p className="mt-3 text-sm leading-7 text-white/72">
           لا يتم جمع العملات المختلفة. كل عملة تظهر في رصيد مستقل.
         </p>
         <div className="mt-5 inline-flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-coin/35 bg-coinSoft/12 px-3 py-2 text-sm font-bold text-coinSoft">
           <ShieldCheck className="h-4 w-4" />
-          <span>قيد المراجعة:</span>
-          {activePending.length ? (
-            activePending.map((item, index) => (
-              <span key={item.currency}>
-                {index ? " · " : ""}
-                {formatMoney(Math.abs(item.amount), item.currency)}
-              </span>
-            ))
-          ) : (
-            <span>لا يوجد</span>
-          )}
+          {hasPending
+            ? "توجد بنود قيد المراجعة ولا تدخل في الرصيد"
+            : "لا توجد بنود قيد المراجعة"}
         </div>
       </div>
     </section>

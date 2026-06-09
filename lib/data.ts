@@ -50,13 +50,33 @@ function directionForCurrent(
 }
 
 export function transactionBalanceImpact(
-  transaction: Pick<Transaction, "paid_by_user_id" | "converted_amount_base">,
+  transaction: Pick<
+    Transaction,
+    | "paid_by_user_id"
+    | "original_amount"
+    | "original_currency"
+    | "base_currency"
+    | "converted_amount_base"
+  >,
   currentProfileId: string | undefined
 ) {
   return (
     directionForCurrent(transaction.paid_by_user_id, currentProfileId) *
-    Number(transaction.converted_amount_base)
+    transactionLedgerAmount(transaction)
   );
+}
+
+export function transactionLedgerAmount(
+  transaction: Pick<
+    Transaction,
+    "original_amount" | "original_currency" | "base_currency" | "converted_amount_base"
+  >
+) {
+  if (transaction.original_currency === transaction.base_currency) {
+    return Number(transaction.original_amount);
+  }
+
+  return Number(transaction.converted_amount_base);
 }
 
 function sortBalances(
@@ -80,13 +100,33 @@ function addBalance(
 }
 
 export function repaymentBalanceImpact(
-  repayment: Pick<Repayment, "paid_by_user_id" | "converted_amount_base">,
+  repayment: Pick<
+    Repayment,
+    | "paid_by_user_id"
+    | "original_amount"
+    | "original_currency"
+    | "base_currency"
+    | "converted_amount_base"
+  >,
   currentProfileId: string | undefined
 ) {
   return (
     directionForCurrent(repayment.paid_by_user_id, currentProfileId) *
-    Number(repayment.converted_amount_base)
+    repaymentLedgerAmount(repayment)
   );
+}
+
+export function repaymentLedgerAmount(
+  repayment: Pick<
+    Repayment,
+    "original_amount" | "original_currency" | "base_currency" | "converted_amount_base"
+  >
+) {
+  if (repayment.original_currency === repayment.base_currency) {
+    return Number(repayment.original_amount);
+  }
+
+  return Number(repayment.converted_amount_base);
 }
 
 function isOfficial(status: TransactionStatus) {
@@ -510,7 +550,7 @@ function getCurrencyTotals(transactions: Transaction[], repayments: Repayment[])
         transaction.original_currency,
         transaction.base_currency,
         transaction.original_amount,
-        transaction.converted_amount_base
+        transactionLedgerAmount(transaction)
       );
     });
 
@@ -521,7 +561,7 @@ function getCurrencyTotals(transactions: Transaction[], repayments: Repayment[])
         repayment.original_currency,
         repayment.base_currency,
         repayment.original_amount,
-        repayment.converted_amount_base
+        repaymentLedgerAmount(repayment)
       );
     });
 
@@ -586,13 +626,14 @@ export async function getDashboardData(
       })
       .reduce(
         (total, transaction) =>
-          total + Math.abs(transaction.converted_amount_base),
+          total + Math.abs(transactionLedgerAmount(transaction)),
         0
       ),
     biggestTransaction:
       officialTransactions.sort(
         (a, b) =>
-          Math.abs(b.converted_amount_base) - Math.abs(a.converted_amount_base)
+          Math.abs(transactionLedgerAmount(b)) -
+          Math.abs(transactionLedgerAmount(a))
       )[0] ?? null,
     lastRepayment:
       repayments

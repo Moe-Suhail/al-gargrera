@@ -48,7 +48,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-line/80 bg-surface/95 shadow-sm">
+      <header className="sticky top-0 z-20 border-b border-line/60 bg-surface/90 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
             <BrandMark />
@@ -96,10 +96,7 @@ export function AppShell({
             );
           })}
         </nav>
-      </header>
-      <main className="mx-auto w-full max-w-5xl px-4 py-5">{children}</main>
-      <nav className="mx-auto w-full max-w-5xl px-4 pb-5 md:hidden">
-        <div className="grid grid-cols-5 gap-1 rounded-lg border border-line/80 bg-white/96 px-2 py-2 shadow-card">
+        <nav className="mx-auto grid max-w-5xl grid-cols-5 gap-1 px-4 pb-3 md:hidden">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const isPrimary = item.href === "/transactions/new";
@@ -109,8 +106,8 @@ export function AppShell({
                 href={item.href}
                 className={
                   isPrimary
-                    ? "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg bg-gradient-to-b from-leaf to-[#173f26] text-[11px] font-black text-white shadow-soft transition-colors hover:bg-leafDark"
-                    : "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold text-sage transition-colors hover:bg-limeSoft/80 hover:text-ink"
+                    ? "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-lg bg-leaf/90 text-[11px] font-black text-white shadow-soft backdrop-blur transition-colors hover:bg-leafDark"
+                    : "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-lg bg-white/20 text-[11px] font-bold text-sage backdrop-blur transition-colors hover:bg-limeSoft/70 hover:text-ink"
                 }
               >
                 {isPrimary ? (
@@ -124,8 +121,9 @@ export function AppShell({
               </Link>
             );
           })}
-        </div>
-      </nav>
+        </nav>
+      </header>
+      <main className="mx-auto w-full max-w-5xl px-4 py-5">{children}</main>
     </div>
   );
 }
