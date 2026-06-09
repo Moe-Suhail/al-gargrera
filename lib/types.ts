@@ -192,9 +192,18 @@ export type DashboardData = {
   repayments: Repayment[];
   activities: ActivityLog[];
   officialBalance: number;
+  officialBalances: Array<{
+    currency: CurrencyCode;
+    amount: number;
+  }>;
   pendingImpact: number;
+  pendingBalances: Array<{
+    currency: CurrencyCode;
+    amount: number;
+  }>;
   currencyTotals: Array<{
     currency: CurrencyCode;
+    baseCurrency: CurrencyCode;
     originalTotal: number;
     convertedTotal: number;
   }>;

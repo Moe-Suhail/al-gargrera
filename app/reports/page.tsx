@@ -3,11 +3,8 @@ import { redirect } from "next/navigation";
 import { Download } from "lucide-react";
 import { TRANSACTION_STATUSES } from "@/lib/constants";
 import { getCurrentContext, getOtherMember } from "@/lib/current-context";
-import {
-  calculateOfficialBalance,
-  getDashboardData
-} from "@/lib/data";
-import { balanceText, formatMoney } from "@/lib/format";
+import { getDashboardData } from "@/lib/data";
+import { formatMoney } from "@/lib/format";
 import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { SetupState } from "@/components/setup-state";
@@ -32,16 +29,30 @@ export default async function ReportsPage() {
       .length
   }));
   const memberTotals = context.members.map((member) => {
-    const total = data.transactions
+    const totals = new Map<string, number>();
+
+    data.transactions
       .filter(
         (transaction) =>
           (transaction.status === "confirmed" ||
             transaction.status === "completed") &&
           transaction.paid_by_user_id === member.user_id
       )
-      .reduce((sum, transaction) => sum + transaction.converted_amount_base, 0);
+      .forEach((transaction) => {
+        totals.set(
+          transaction.base_currency,
+          (totals.get(transaction.base_currency) ?? 0) +
+            transaction.converted_amount_base
+        );
+      });
 
-    return { member, total };
+    return {
+      member,
+      totals: Array.from(totals.entries()).map(([currency, total]) => ({
+        currency,
+        total
+      }))
+    };
   });
 
   return (
@@ -63,25 +74,34 @@ export default async function ReportsPage() {
       <div className="grid gap-5 lg:grid-cols-3">
         <section className="rounded-lg border border-line bg-white p-5 shadow-sm lg:col-span-2">
           <h2 className="text-xl font-black text-leafDark">ملخص الرصيد</h2>
-          <p className="mt-3 text-3xl font-black text-leaf">
-            {balanceText(
-              calculateOfficialBalance(
-                data.transactions,
-                data.repayments,
-                context.profile.id
-              ),
-              otherMember?.profile.display_name
+          <div className="mt-3 grid gap-2">
+            {data.officialBalances.length ? (
+              data.officialBalances.map((item) => (
+                <p key={item.currency} className="text-3xl font-black text-leaf">
+                  {item.amount > 0
+                    ? `مستحق لك من ${otherMember?.profile.display_name ?? "الطرف الآخر"}: `
+                    : `مستحق عليك لـ${otherMember?.profile.display_name ?? "الطرف الآخر"}: `}
+                  {formatMoney(Math.abs(item.amount), item.currency)}
+                </p>
+              ))
+            ) : (
+              <p className="text-3xl font-black text-leaf">الرصيد متوازن</p>
             )}
-          </p>
+          </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {memberTotals.map(({ member, total }) => (
+            {memberTotals.map(({ member, totals }) => (
               <div
                 key={member.user_id}
                 className="rounded-lg bg-mintpaper px-4 py-3"
               >
                 <p className="text-sm text-muted">إجمالي ما دفعه</p>
                 <p className="mt-1 font-black text-leafDark">
-                  {member.profile.display_name}: {formatMoney(total)}
+                  {member.profile.display_name}:{" "}
+                  {totals.length
+                    ? totals
+                        .map((item) => formatMoney(item.total, item.currency))
+                        .join(" · ")
+                    : "لا يوجد"}
                 </p>
               </div>
             ))}
@@ -115,8 +135,10 @@ export default async function ReportsPage() {
                   {formatMoney(item.originalTotal, item.currency)}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-muted">
-                  ما يعادل تقريبًا: {formatMoney(item.convertedTotal)} حسب الأسعار
-                  المحفوظة وقت كل عملية
+                  مسجلة كرصد: {formatMoney(item.convertedTotal, item.baseCurrency)}
+                  {item.currency !== item.baseCurrency
+                    ? " حسب سعر الصرف المحفوظ وقت العملية"
+                    : " بدون تحويل"}
                 </p>
               </div>
             ))

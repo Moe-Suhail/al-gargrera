@@ -60,9 +60,9 @@ export default async function DashboardPage() {
       />
 
       <BalanceCard
-        balance={data.officialBalance}
+        balances={data.officialBalances}
         otherName={otherMember?.profile.display_name}
-        pendingImpact={data.pendingImpact}
+        pendingBalances={data.pendingBalances}
       />
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -99,8 +99,9 @@ export default async function DashboardPage() {
         />
         <StatCard
           icon={TrendingUp}
-          title="إجمالي الشهر"
+          title="إجمالي الشهر بالجنيه"
           value={formatMoney(data.monthlyTotal)}
+          note="لا يشمل العملات المحفوظة كما هي."
         />
         <StatCard
           icon={RotateCcw}
@@ -167,7 +168,7 @@ export default async function DashboardPage() {
                   <span className="font-black text-ink">{item.currency}</span>
                   <span className="text-sm text-sage">
                     {formatMoney(item.originalTotal, item.currency)} ·{" "}
-                    {formatMoney(item.convertedTotal)}
+                    {formatMoney(item.convertedTotal, item.baseCurrency)}
                   </span>
                 </div>
               ))

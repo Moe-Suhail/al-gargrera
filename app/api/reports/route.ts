@@ -26,7 +26,8 @@ export async function GET() {
       "description",
       "amount",
       "currency",
-      "converted_egp",
+      "balance_amount",
+      "balance_currency",
       "status",
       "paid_by",
       "related"
@@ -38,6 +39,7 @@ export async function GET() {
       transaction.original_amount,
       transaction.original_currency,
       transaction.converted_amount_base,
+      transaction.base_currency,
       transaction.status,
       transaction.paid_by?.display_name ?? "",
       transaction.related_user?.display_name ?? ""
@@ -49,6 +51,7 @@ export async function GET() {
       repayment.original_amount,
       repayment.original_currency,
       repayment.converted_amount_base,
+      repayment.base_currency,
       repayment.status,
       repayment.paid_by?.display_name ?? "",
       repayment.paid_to?.display_name ?? ""

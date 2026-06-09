@@ -32,7 +32,9 @@ function emptyDashboard(): DashboardData {
     repayments: [],
     activities: [],
     officialBalance: 0,
+    officialBalances: [],
     pendingImpact: 0,
+    pendingBalances: [],
     currencyTotals: [],
     monthlyTotal: 0,
     biggestTransaction: null,
@@ -55,6 +57,26 @@ export function transactionBalanceImpact(
     directionForCurrent(transaction.paid_by_user_id, currentProfileId) *
     Number(transaction.converted_amount_base)
   );
+}
+
+function sortBalances(
+  balances: Array<{ currency: CurrencyCode; amount: number }>
+) {
+  return balances
+    .filter((item) => Math.abs(item.amount) >= 0.01)
+    .sort((a, b) => {
+      if (a.currency === "EGP") return -1;
+      if (b.currency === "EGP") return 1;
+      return a.currency.localeCompare(b.currency);
+    });
+}
+
+function addBalance(
+  totals: Map<CurrencyCode, number>,
+  currency: CurrencyCode,
+  amount: number
+) {
+  totals.set(currency, (totals.get(currency) ?? 0) + amount);
 }
 
 export function repaymentBalanceImpact(
@@ -357,6 +379,41 @@ export function calculateOfficialBalance(
   return transactionBalance + repaymentBalance;
 }
 
+export function calculateOfficialBalances(
+  transactions: Transaction[],
+  repayments: Repayment[],
+  currentProfileId: string | undefined
+) {
+  const totals = new Map<CurrencyCode, number>();
+
+  transactions
+    .filter((transaction) => isOfficial(transaction.status))
+    .forEach((transaction) => {
+      addBalance(
+        totals,
+        transaction.base_currency,
+        transactionBalanceImpact(transaction, currentProfileId)
+      );
+    });
+
+  repayments
+    .filter((repayment) => isOfficial(repayment.status))
+    .forEach((repayment) => {
+      addBalance(
+        totals,
+        repayment.base_currency,
+        repaymentBalanceImpact(repayment, currentProfileId)
+      );
+    });
+
+  return sortBalances(
+    Array.from(totals.entries()).map(([currency, amount]) => ({
+      currency,
+      amount
+    }))
+  );
+}
+
 export function calculatePendingImpact(
   transactions: Transaction[],
   repayments: Repayment[],
@@ -381,26 +438,69 @@ export function calculatePendingImpact(
   return transactionImpact + repaymentImpact;
 }
 
+export function calculatePendingBalances(
+  transactions: Transaction[],
+  repayments: Repayment[],
+  currentProfileId: string | undefined
+) {
+  const totals = new Map<CurrencyCode, number>();
+
+  transactions
+    .filter((transaction) => transaction.status === "pending_confirmation")
+    .forEach((transaction) => {
+      addBalance(
+        totals,
+        transaction.base_currency,
+        transactionBalanceImpact(transaction, currentProfileId)
+      );
+    });
+
+  repayments
+    .filter((repayment) => repayment.status === "pending_confirmation")
+    .forEach((repayment) => {
+      addBalance(
+        totals,
+        repayment.base_currency,
+        repaymentBalanceImpact(repayment, currentProfileId)
+      );
+    });
+
+  return sortBalances(
+    Array.from(totals.entries()).map(([currency, amount]) => ({
+      currency,
+      amount
+    }))
+  );
+}
+
 function getCurrencyTotals(transactions: Transaction[], repayments: Repayment[]) {
   const totals = new Map<
-    CurrencyCode,
-    { currency: CurrencyCode; originalTotal: number; convertedTotal: number }
+    string,
+    {
+      currency: CurrencyCode;
+      baseCurrency: CurrencyCode;
+      originalTotal: number;
+      convertedTotal: number;
+    }
   >();
 
   const add = (
     currency: CurrencyCode,
+    baseCurrency: CurrencyCode,
     originalAmount: number,
     convertedAmount: number
   ) => {
-    const current = totals.get(currency) ?? {
+    const key = `${currency}-${baseCurrency}`;
+    const current = totals.get(key) ?? {
       currency,
+      baseCurrency,
       originalTotal: 0,
       convertedTotal: 0
     };
 
     current.originalTotal += originalAmount;
     current.convertedTotal += convertedAmount;
-    totals.set(currency, current);
+    totals.set(key, current);
   };
 
   transactions
@@ -408,6 +508,7 @@ function getCurrencyTotals(transactions: Transaction[], repayments: Repayment[])
     .forEach((transaction) => {
       add(
         transaction.original_currency,
+        transaction.base_currency,
         transaction.original_amount,
         transaction.converted_amount_base
       );
@@ -418,13 +519,14 @@ function getCurrencyTotals(transactions: Transaction[], repayments: Repayment[])
     .forEach((repayment) => {
       add(
         repayment.original_currency,
+        repayment.base_currency,
         repayment.original_amount,
         repayment.converted_amount_base
       );
     });
 
   return Array.from(totals.values()).sort((a, b) =>
-    a.currency.localeCompare(b.currency)
+    `${a.currency}-${a.baseCurrency}`.localeCompare(`${b.currency}-${b.baseCurrency}`)
   );
 }
 
@@ -457,7 +559,17 @@ export async function getDashboardData(
       repayments,
       context.profile?.id
     ),
+    officialBalances: calculateOfficialBalances(
+      transactions,
+      repayments,
+      context.profile?.id
+    ),
     pendingImpact: calculatePendingImpact(
+      transactions,
+      repayments,
+      context.profile?.id
+    ),
+    pendingBalances: calculatePendingBalances(
       transactions,
       repayments,
       context.profile?.id
@@ -466,7 +578,11 @@ export async function getDashboardData(
     monthlyTotal: officialTransactions
       .filter((transaction) => {
         const date = new Date(transaction.transaction_date);
-        return date.getFullYear() === year && date.getMonth() === month;
+        return (
+          transaction.base_currency === "EGP" &&
+          date.getFullYear() === year &&
+          date.getMonth() === month
+        );
       })
       .reduce(
         (total, transaction) =>
